@@ -1,0 +1,2 @@
+D:\rf_dev\comport\x64\Debug\comport.exe
+D:\dev\wei\comport\x64\Debug\comport.exe
