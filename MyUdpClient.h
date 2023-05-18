@@ -3,45 +3,50 @@
 #include <winsock2.h>
 #include <process.h>
 #include <iostream>
+#include "Command.h"
+#include "Util.h" 
 
 #pragma comment(lib,"ws2_32.lib")
 
-#define SERVER_PORT 4000
-#define LOCAL_PORT  4001
+#define REMOTE_PORT 8001
+#define LOCAL_PORT  8000
 #define SERVER_IP "127.0.0.1"
 #define SENDBUFFSIZE 1024
+#define REVBUFFSIZE 1024
 
 using namespace std;
 
 class MyUdpClient
 {
 public:
-	MyUdpClient(void);
-	~MyUdpClient(void);
+	MyUdpClient();
+	~MyUdpClient();
 
+public:
 	bool OpenRevThread();
 	static UINT WINAPI RevThreadFunc(void* pParam);
 	bool OpenSendThread();
 	static UINT WINAPI SendThreadFunc(void* pParam);
 	bool CloseRevThread();
 	bool CloseSendThread();
+	void StartThread();
+	int SendPack();
 
 	int init;
-	SOCKET SendSocket;
-	WSADATA wsaData;//³õÊ¼»¯
-	sockaddr_in RecvAddr;         //·þÎñÆ÷µØÖ·
-	sockaddr_in SenderAddr;       //±¾µØµØÖ·
-	int localPort = LOCAL_PORT;         //±¾µØ¼àÌý¶Ë¿Ú
-	int Port = SERVER_PORT;              //·þÎñÆ÷¼àÌý¶Ë¿Ú
-	int BufLen;
-	int l_naddLen1;
+	static SOCKET SendSocket;
+	WSADATA wsaData;//ï¿½ï¿½Ê¼ï¿½ï¿½
+	static sockaddr_in RecvAddr;         //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
+	static sockaddr_in SenderAddr;       //ï¿½ï¿½ï¿½Øµï¿½Ö·
+	int localPort = LOCAL_PORT;         //ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½Ë¿ï¿½
+	int Port = REMOTE_PORT;              //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿ï¿½
+	static int BufLen;
+	static int l_naddLen1;
 
-	/** Ïß³ÌÍË³ö±êÖ¾±äÁ¿ */
+	/** ï¿½ß³ï¿½ï¿½Ë³ï¿½ï¿½ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½ */
 	static bool sendExit;
 	static bool revExit;
 
-	/** Ïß³Ì¾ä±ú */
+	/** ï¿½ß³Ì¾ï¿½ï¿½ */
 	volatile HANDLE    sendThread;
 	volatile HANDLE    revThread;
-
 };

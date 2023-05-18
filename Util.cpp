@@ -1,14 +1,14 @@
 #include "util.h"
-#include<climits>
+#include <climits>
 
 //************************************
-// Method:    strToHex Ê®Áù½øÖÆ×Ö·û´®×ª16½øÖÆ
+// Method:    strToHex Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½×ª16ï¿½ï¿½ï¿½ï¿½
 // FullName:  CommUtil::strToHex
 // Access:    public 
 // Returns:   data length
 // Qualifier:
-// Parameter: char * hexStr Ê®Áù½øÖÆ×Ö·û´®
-// Parameter: unsigned char * outData ´æ´¢16½øÖÆÈÝÆ÷
+// Parameter: char * hexStr Ê®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
+// Parameter: unsigned char * outData ï¿½æ´¢16ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //************************************
 int strToHex(char* hexStr, unsigned char* outData) {
     int len = strlen(hexStr);

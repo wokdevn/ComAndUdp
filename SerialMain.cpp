@@ -6,9 +6,14 @@
 #include "util.h"
 #include "Config.h"
 
+<<<<<<< HEAD
 int amain()
 {
 
+=======
+int main()
+{
+>>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 	getComPortByQuery();
 
 	CSerialPort mySerialPort;
@@ -44,6 +49,13 @@ int amain()
 		mySerialPort.WriteData(data, length);
 	}*/
 
+<<<<<<< HEAD
+=======
+	//MyUdpClient m;
+	////m.setcsp(&mySerialPort);
+	//m.StartThread();
+
+>>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 	//防止主程序退出
 	while (1) {}
 

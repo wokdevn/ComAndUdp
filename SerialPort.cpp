@@ -18,7 +18,11 @@
 ///  修订说明：  
 //  
 
+<<<<<<< HEAD
 #include "SerialPort.h"  
+=======
+#include "SerialPort.h"
+>>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 #include <process.h>  
 #include <iostream>  
 #include <conio.h>
@@ -205,7 +209,11 @@ bool CSerialPort::OpenListenThread()
 	/** 线程ID */
 	UINT threadId;
 	/** 开启串口数据监听线程 */
+<<<<<<< HEAD
 	m_hListenThread = (HANDLE)_beginthreadex(NULL, 0, ListenThread, this, 0, &threadId);
+=======
+	m_hListenThread = (HANDLE)_beginthreadex(NULL, 0, ListenThreadFunc, this, 0, &threadId);
+>>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 	if (!m_hListenThread)
 	{
 		return false;
@@ -258,7 +266,11 @@ UINT CSerialPort::GetBytesInCOM()
 //	mySerialPort.WriteData(data, length);
 //}
 
+<<<<<<< HEAD
 UINT WINAPI CSerialPort::ListenThread(void* pParam)
+=======
+UINT WINAPI CSerialPort::ListenThreadFunc(void* pParam)
+>>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 {
 	/** 得到本类的指针 */
 	CSerialPort* pSerialPort = reinterpret_cast<CSerialPort*>(pParam);
@@ -274,6 +286,13 @@ UINT WINAPI CSerialPort::ListenThread(void* pParam)
 			continue;
 		}
 
+<<<<<<< HEAD
+=======
+		/*MyUdpClient m;
+		m.SendPack();*/
+		//muc.SendPack();
+
+>>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 		/** 读取输入缓冲区中的数据并输出显示 */
 		char cRecved = 0x00;
 		do
