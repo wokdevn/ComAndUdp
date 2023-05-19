@@ -190,13 +190,13 @@ bool MyUdpClient::CloseSendThread() {
 }
 
 void MyUdpClient::StartThread() {
-	/*bool sendStatus = OpenSendThread();
-	if (!sendStatus) {
-		std::cout << "send thread error\n";
-	}
-	else {
-		std::cout << "udp send thread up\n";
-	}*/
+	//bool sendStatus = OpenSendThread();
+	//if (!sendStatus) {
+	//	std::cout << "send thread error\n";
+	//}
+	//else {
+	//	std::cout << "udp send thread up\n";
+	//}
 
 	bool revStatus = OpenRevThread();
 	if (!revStatus) {

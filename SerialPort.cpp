@@ -17,6 +17,7 @@
 ///  
 ///  修订说明：  
 //  
+#include "MyUdpClient.h"
 
 #include "SerialPort.h"
 #include <process.h>  
@@ -274,8 +275,8 @@ UINT WINAPI CSerialPort::ListenThreadFunc(void* pParam)
 			continue;
 		}
 
-		/*MyUdpClient m;
-		m.SendPack();*/
+		MyUdpClient m;
+		m.SendPack();
 		//muc.SendPack();
 
 		/** 读取输入缓冲区中的数据并输出显示 */
