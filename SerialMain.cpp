@@ -45,7 +45,7 @@ int main()
 	}*/
 
 	MyUdpClient m;
-	//m.StartThread();
+	m.StartThread();
 
 	//send test
 	//for (int i = 0; i < 10; ++i) {
@@ -55,29 +55,29 @@ int main()
 	//}
 
 	//防止主程序退出
-	while (1) {
-		char RevBuf[REVBUFFSIZE];
-		int l_nReadLen = recvfrom(m.SendSocket, RevBuf, m.BufLen, 0, (struct sockaddr*)&(m.SenderAddr), &(m.l_naddLen1));
-		if (l_nReadLen) {
-			printf("recved\n");
+	//while (1) {
+	//	char RevBuf[REVBUFFSIZE];
+	//	int l_nReadLen = recvfrom(m.SendSocket, RevBuf, m.BufLen, 0, (struct sockaddr*)&(m.SenderAddr), &(m.l_naddLen1));
+	//	if (l_nReadLen) {
+	//		printf("recved\n");
 
-			//test use
-			m.SendPack();
+	//		//test use
+	//		m.SendPack();
 
-			unsigned char data[100];
-			int length = strToHex((char*)N_DIR, data);
-			for (int i = 0; i < 1; ++i) {
-				mySerialPort.WriteData(data, length);
-			}
-		}
-		printf("\nread：");
-		for (int i = 0; i < l_nReadLen; i++)
-		{
-			printf("%02x ", RevBuf[i]);
-		}
+	//		unsigned char data[100];
+	//		int length = strToHex((char*)N_DIR, data);
+	//		for (int i = 0; i < 1; ++i) {
+	//			mySerialPort.WriteData(data, length);
+	//		}
+	//	}
+	//	printf("\nread：");
+	//	for (int i = 0; i < l_nReadLen; i++)
+	//	{
+	//		printf("%02x ", RevBuf[i]);
+	//	}
 
-		Sleep(1);
-	}
+	//	Sleep(1);
+	//}
 
 	return 0;
 }

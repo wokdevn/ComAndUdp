@@ -17,9 +17,11 @@
 ///  
 ///  修订说明：  
 //  
-#include "MyUdpClient.h"
+
 
 #include "SerialPort.h"
+
+//#include "SerialPort.h"
 #include <process.h>  
 #include <iostream>  
 #include <conio.h>
@@ -29,6 +31,7 @@ bool CSerialPort::s_bExit = false;
 bool CSerialPort::terminalExit = false;
 /** 当串口无数据时,sleep至下次查询间隔的时间,单位:毫秒 */
 const UINT SLEEP_TIME_INTERVAL = 1;
+MyUdpClient* CSerialPort::muc = NULL;
 
 CSerialPort::CSerialPort(void)
 	: m_hListenThread(INVALID_HANDLE_VALUE)
@@ -275,9 +278,12 @@ UINT WINAPI CSerialPort::ListenThreadFunc(void* pParam)
 			continue;
 		}
 
-		MyUdpClient m;
-		m.SendPack();
-		//muc.SendPack();
+	/*	MyUdpClient m;
+		m.SendPack();*/
+		MyUdpClient* mm = new MyUdpClient();
+		muc = mm;
+
+		muc->SendPack();
 
 		/** 读取输入缓冲区中的数据并输出显示 */
 		char cRecved = 0x00;

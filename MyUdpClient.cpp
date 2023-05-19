@@ -1,4 +1,4 @@
-#include "MyUdpClient.h"
+#include "SerialPort.h"
 
 //?????????????????????????构造函数无法解析的问题,为什么serial那个可以声明的时候不加大括号,vs的bug淦
 //构造函数,初始化用
@@ -50,6 +50,7 @@ int MyUdpClient::BufLen;
 int MyUdpClient::l_naddLen1;
 
 const UINT SLEEP_TIME = 1;
+CSerialPort* MyUdpClient::csp = NULL;
 
 
 bool MyUdpClient::OpenRevThread() {
@@ -88,7 +89,7 @@ UINT WINAPI MyUdpClient::RevThreadFunc(void* pParam) {
 			unsigned char data[100];
 			int length = strToHex((char*)N_DIR, data);
 			for (int i = 0; i < 1; ++i) {
-				//csp->WriteData(data, length);
+				csp->WriteData(data, length);
 			}
 		}
 		printf("\nread：");
