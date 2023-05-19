@@ -10,7 +10,7 @@
 
 #define REMOTE_PORT 8001
 #define LOCAL_PORT  8000
-#define SERVER_IP "127.0.0.1"
+#define SERVER_IP "192.168.0.27"
 #define SENDBUFFSIZE 1024
 #define REVBUFFSIZE 1024
 

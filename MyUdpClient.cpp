@@ -209,7 +209,7 @@ void MyUdpClient::StartThread() {
 
 int MyUdpClient::SendPack() {
 	char SendBuf[SENDBUFFSIZE];
-	strcpy_s(SendBuf, "hello");
+	strcpy_s(SendBuf, "hellov1");
 
 	int l_nLen = sendto(SendSocket, SendBuf, strlen(SendBuf), 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
 	if (l_nLen < 0)

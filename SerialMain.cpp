@@ -45,7 +45,14 @@ int main()
 	}*/
 
 	MyUdpClient m;
-	m.StartThread();
+	//m.StartThread();
+
+	//send test
+	//for (int i = 0; i < 10; ++i) {
+	//	m.SendPack();
+
+	//	Sleep(1000);
+	//}
 
 	//防止主程序退出
 	while (1) {
@@ -53,6 +60,9 @@ int main()
 		int l_nReadLen = recvfrom(m.SendSocket, RevBuf, m.BufLen, 0, (struct sockaddr*)&(m.SenderAddr), &(m.l_naddLen1));
 		if (l_nReadLen) {
 			printf("recved\n");
+
+			//test use
+			m.SendPack();
 
 			unsigned char data[100];
 			int length = strToHex((char*)N_DIR, data);
