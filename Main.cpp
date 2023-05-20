@@ -1,4 +1,7 @@
-﻿#include <iostream>
+/*主程序*/
+
+#include <iostream>
+
 #include "SerialPort.h"
 #include "GetPort.h"
 #include "Test.h"
@@ -6,19 +9,14 @@
 #include "util.h"
 #include "Config.h"
 
-<<<<<<< HEAD
-int amain()
-{
-
-=======
 int main()
 {
->>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
-	getComPortByQuery();
+	std::vector<int> listCom;
+	listComPortByQuery(listCom);	//GetPort中还有一个通过注册表的方法,但是之前测试有问题
 
 	CSerialPort mySerialPort;
 
-	if (!mySerialPort.InitPort(7))
+	if (!mySerialPort.InitPort(COM_PORT))
 	{
 		std::cout << "initPort fail !!!!!!!!!!!!!!!\n\n" << std::endl;
 	}
@@ -49,13 +47,10 @@ int main()
 		mySerialPort.WriteData(data, length);
 	}*/
 
-<<<<<<< HEAD
-=======
 	//MyUdpClient m;
 	////m.setcsp(&mySerialPort);
 	//m.StartThread();
 
->>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 	//防止主程序退出
 	while (1) {}
 

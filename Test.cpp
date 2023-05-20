@@ -1,4 +1,4 @@
-#include "Test.h"
+ï»¿#include "Test.h"
 #include <process.h>
 #include <Windows.h>
 #include "Command.h"
@@ -19,13 +19,13 @@ void CommandTest() {
 }
 
 //************************************
-// Method:    strToHex Ê®Áù½øÖÆ×Ö·û´®×ª16½øÖÆ
+// Method:    strToHex åå…­è¿›åˆ¶å­—ç¬¦ä¸²è½¬16è¿›åˆ¶
 // FullName:  CommUtil::strToHex
 // Access:    public 
 // Returns:   data length
 // Qualifier:
-// Parameter: char * hexStr Ê®Áù½øÖÆ×Ö·û´®
-// Parameter: unsigned char * outData ´æ´¢16½øÖÆÈİÆ÷
+// Parameter: char * hexStr åå…­è¿›åˆ¶å­—ç¬¦ä¸²
+// Parameter: unsigned char * outData å­˜å‚¨16è¿›åˆ¶å®¹å™¨
 //************************************
 int StrToHexTest(char* hexStr, unsigned char* outData) {
     int len = strlen(hexStr);
@@ -88,21 +88,21 @@ void ConvertTest() {
 bool s_bExit;
 UINT WINAPI ThreadFunc(void* pParam)
 {
-    /** µÃµ½±¾ÀàµÄÖ¸Õë */
+    /** å¾—åˆ°æœ¬ç±»çš„æŒ‡é’ˆ */
     //CSerialPort* pSerialPort = reinterpret_cast<CSerialPort*>(pParam);
 
-    // Ïß³ÌÑ­»·,ÂÖÑ¯·½Ê½¶ÁÈ¡´®¿ÚÊı¾İ  
+    // çº¿ç¨‹å¾ªç¯,è½®è¯¢æ–¹å¼è¯»å–ä¸²å£æ•°æ®  
     while (s_bExit)
     {
         //UINT BytesInQue = pSerialPort->GetBytesInCOM();
-        ///** Èç¹û´®¿ÚÊäÈë»º³åÇøÖĞÎŞÊı¾İ,ÔòĞİÏ¢Ò»»áÔÙ²éÑ¯ */
+        ///** å¦‚æœä¸²å£è¾“å…¥ç¼“å†²åŒºä¸­æ— æ•°æ®,åˆ™ä¼‘æ¯ä¸€ä¼šå†æŸ¥è¯¢ */
         //if (BytesInQue == 0)
         //{
         //    Sleep(SLEEP_TIME_INTERVAL);
         //    continue;
         //}
 
-        ///** ¶ÁÈ¡ÊäÈë»º³åÇøÖĞµÄÊı¾İ²¢Êä³öÏÔÊ¾ */
+        ///** è¯»å–è¾“å…¥ç¼“å†²åŒºä¸­çš„æ•°æ®å¹¶è¾“å‡ºæ˜¾ç¤º */
         //char cRecved = 0x00;
         //do
         //{
@@ -124,25 +124,25 @@ UINT WINAPI ThreadFunc(void* pParam)
 
 bool OpenThreadTest()
 {
-    /** ¼ì²âÏß³ÌÊÇ·ñÒÑ¾­¿ªÆôÁË */
+    /** æ£€æµ‹çº¿ç¨‹æ˜¯å¦å·²ç»å¼€å¯äº† */
     if (m_TestThread != INVALID_HANDLE_VALUE)
     {
-        /** Ïß³ÌÒÑ¾­¿ªÆô */
+        /** çº¿ç¨‹å·²ç»å¼€å¯ */
         std::cout << "already open\n";
         CloseHandle(m_TestThread);
         return false;
     }
 
     s_bExit = true;
-    /** Ïß³ÌID */
+    /** çº¿ç¨‹ID */
     UINT threadId;
-    /** ¿ªÆô´®¿ÚÊı¾İ¼àÌıÏß³Ì */
+    /** å¼€å¯ä¸²å£æ•°æ®ç›‘å¬çº¿ç¨‹ */
     m_TestThread = (HANDLE)_beginthreadex(NULL, 0, ThreadFunc, NULL, 0, &threadId);
     if (!m_TestThread)
     {
         return false;
     }
-    /** ÉèÖÃÏß³ÌµÄÓÅÏÈ¼¶,¸ßÓÚÆÕÍ¨Ïß³Ì */
+    /** è®¾ç½®çº¿ç¨‹çš„ä¼˜å…ˆçº§,é«˜äºæ™®é€šçº¿ç¨‹ */
     if (!SetThreadPriority(m_TestThread, THREAD_PRIORITY_ABOVE_NORMAL))
     {
         return false;

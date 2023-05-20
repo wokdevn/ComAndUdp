@@ -2,13 +2,13 @@
 #include <climits>
 
 //************************************
-// Method:    strToHex ʮ�������ַ���ת16����
+// Method:    strToHex 十六进制字符串转16进制
 // FullName:  CommUtil::strToHex
 // Access:    public 
 // Returns:   data length
 // Qualifier:
-// Parameter: char * hexStr ʮ�������ַ���
-// Parameter: unsigned char * outData �洢16��������
+// Parameter: char * hexStr 十六进制字符串
+// Parameter: unsigned char * outData 存储16进制容器
 //************************************
 int strToHex(char* hexStr, unsigned char* outData) {
     int len = strlen(hexStr);

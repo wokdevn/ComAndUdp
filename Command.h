@@ -1,3 +1,13 @@
+/*
+ * @Author: shun
+ * @Date: 2023-05-18 00:53:54
+ * @LastEditors: shun
+ * @LastEditTime: 2023-05-20 23:50:02
+ * @Description: 请填写简介
+ */
+
+/*天线控制码表,在Config.h里面控制是收端还是发端,以及TEST*/
+
 #include "Config.h"
 
 #define ONE				"55 00 04 00 02 00 72 AA"

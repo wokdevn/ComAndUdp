@@ -1,3 +1,5 @@
+﻿/*测试用,与主程序无关*/
+
 #include <iostream>
 using namespace std;
 
@@ -29,7 +31,7 @@ public:
 cb* ca::capr = NULL;
 ca* cb::cbpr = NULL;
 
-int main(){
+int amain(){
 	ca* aa = new ca(1);
 	cb* bb = new cb(2);
 
@@ -40,4 +42,6 @@ int main(){
 	bb->cbpr->getid();
 
 	cin.get();
+
+	return 0;
 }

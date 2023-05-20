@@ -1,3 +1,5 @@
+/*测试用,与主程序无关*/
+
 #include <iostream>
 
 using namespace std;

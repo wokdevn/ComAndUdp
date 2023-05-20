@@ -1,36 +1,13 @@
-
-//  
-/// COPYRIGHT NOTICE  
-/// Copyright (c) 2009, »ªÖĞ¿Æ¼¼´óÑ§tickTick Group  £¨°æÈ¨ÉùÃ÷£©  
-/// All rights reserved.  
-///   
-/// @file    SerialPort.cpp    
-/// @brief   ´®¿ÚÍ¨ĞÅÀàµÄÊµÏÖÎÄ¼ş  
-///  
-/// ±¾ÎÄ¼şÎª´®¿ÚÍ¨ĞÅÀàµÄÊµÏÖ´úÂë  
-///  
-/// @version 1.0     
-/// @author  Â¬¿¡    
-/// @E-mail£ºlujun.hust@gmail.com  
-/// @date    2010/03/19  
-///   
-///  
-///  ĞŞ¶©ËµÃ÷£º  
-//  
-
-<<<<<<< HEAD
+ï»¿
 #include "SerialPort.h"  
-=======
-#include "SerialPort.h"
->>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 #include <process.h>  
 #include <iostream>  
 #include <conio.h>
 
-/** Ïß³ÌÍË³ö±êÖ¾ */
+/** çº¿ç¨‹é€€å‡ºæ ‡å¿— */
 bool CSerialPort::s_bExit = false;
 bool CSerialPort::terminalExit = false;
-/** µ±´®¿ÚÎŞÊı¾İÊ±,sleepÖÁÏÂ´Î²éÑ¯¼ä¸ôµÄÊ±¼ä,µ¥Î»:ºÁÃë */
+/** å½“ä¸²å£æ— æ•°æ®æ—¶,sleepè‡³ä¸‹æ¬¡æŸ¥è¯¢é—´éš”çš„æ—¶é—´,å•ä½:æ¯«ç§’ */
 const UINT SLEEP_TIME_INTERVAL = 1;
 
 CSerialPort::CSerialPort(void)
@@ -40,6 +17,7 @@ CSerialPort::CSerialPort(void)
 	m_hListenThread = INVALID_HANDLE_VALUE;
 	m_TerminalThread = INVALID_HANDLE_VALUE;
 
+	//CriticalåŒºåˆå§‹åŒ–
 	InitializeCriticalSection(&m_csCommunicationSync);
 }
 
@@ -51,37 +29,37 @@ CSerialPort::~CSerialPort(void)
 	DeleteCriticalSection(&m_csCommunicationSync);
 }
 
-bool CSerialPort::InitPort(UINT portNo /*= 1*/, UINT baud /*= CBR_9600*/, char parity /*= 'N'*/,
+bool CSerialPort::InitPort(UINT portNo /*= 1*/, UINT baud /*= CBR_115200*/, char parity /*= 'N'*/,
 	UINT databits /*= 8*/, UINT stopsbits /*= 1*/, DWORD dwCommEvents /*= EV_RXCHAR*/)
 {
 
 	UINT m_baud = 460800;
 
-	/** ÁÙÊ±±äÁ¿,½«ÖÆ¶¨²ÎÊı×ª»¯Îª×Ö·û´®ĞÎÊ½,ÒÔ¹¹ÔìDCB½á¹¹ */
+	/** ä¸´æ—¶å˜é‡,å°†åˆ¶å®šå‚æ•°è½¬åŒ–ä¸ºå­—ç¬¦ä¸²å½¢å¼,ä»¥æ„é€ DCBç»“æ„ */
 	char szDCBparam[50];
 	sprintf_s(szDCBparam, "baud=%d parity=%c data=%d stop=%d", m_baud, parity, databits, stopsbits);
 
-	/** ´ò¿ªÖ¸¶¨´®¿Ú,¸Ãº¯ÊıÄÚ²¿ÒÑ¾­ÓĞÁÙ½çÇø±£»¤,ÉÏÃæÇë²»Òª¼Ó±£»¤ */
+	/** æ‰“å¼€æŒ‡å®šä¸²å£,è¯¥å‡½æ•°å†…éƒ¨å·²ç»æœ‰ä¸´ç•ŒåŒºä¿æŠ¤,ä¸Šé¢è¯·ä¸è¦åŠ ä¿æŠ¤ */
 	if (!openPort(portNo))
 	{
 		return false;
 	}
 
-	/** ½øÈëÁÙ½ç¶Î */
+	/** è¿›å…¥ä¸´ç•Œæ®µ */
 	EnterCriticalSection(&m_csCommunicationSync);
 
-	/** ÊÇ·ñÓĞ´íÎó·¢Éú */
+	/** æ˜¯å¦æœ‰é”™è¯¯å‘ç”Ÿ */
 	BOOL bIsSuccess = TRUE;
 
-	/** ÔÚ´Ë¿ÉÒÔÉèÖÃÊäÈëÊä³öµÄ»º³åÇø´óĞ¡,Èç¹û²»ÉèÖÃ,ÔòÏµÍ³»áÉèÖÃÄ¬ÈÏÖµ.
-	*  ×Ô¼ºÉèÖÃ»º³åÇø´óĞ¡Ê±,Òª×¢ÒâÉèÖÃÉÔ´óÒ»Ğ©,±ÜÃâ»º³åÇøÒç³ö
+	/** åœ¨æ­¤å¯ä»¥è®¾ç½®è¾“å…¥è¾“å‡ºçš„ç¼“å†²åŒºå¤§å°,å¦‚æœä¸è®¾ç½®,åˆ™ç³»ç»Ÿä¼šè®¾ç½®é»˜è®¤å€¼.
+	*  è‡ªå·±è®¾ç½®ç¼“å†²åŒºå¤§å°æ—¶,è¦æ³¨æ„è®¾ç½®ç¨å¤§ä¸€äº›,é¿å…ç¼“å†²åŒºæº¢å‡º
 	*/
 	/*if (bIsSuccess )
 	{
 	bIsSuccess = SetupComm(m_hComm,10,10);
 	}*/
 
-	/** ÉèÖÃ´®¿ÚµÄ³¬Ê±Ê±¼ä,¾ùÉèÎª0,±íÊ¾²»Ê¹ÓÃ³¬Ê±ÏŞÖÆ */
+	/** è®¾ç½®ä¸²å£çš„è¶…æ—¶æ—¶é—´,å‡è®¾ä¸º0,è¡¨ç¤ºä¸ä½¿ç”¨è¶…æ—¶é™åˆ¶ */
 	COMMTIMEOUTS  CommTimeouts;
 	CommTimeouts.ReadIntervalTimeout = 0;
 	CommTimeouts.ReadTotalTimeoutMultiplier = 0;
@@ -96,7 +74,7 @@ bool CSerialPort::InitPort(UINT portNo /*= 1*/, UINT baud /*= CBR_9600*/, char p
 	DCB  dcb;
 	if (bIsSuccess)
 	{
-		// ½«ANSI×Ö·û´®×ª»»ÎªUNICODE×Ö·û´®  
+		// å°†ANSIå­—ç¬¦ä¸²è½¬æ¢ä¸ºUNICODEå­—ç¬¦ä¸²  
 		DWORD dwNum = MultiByteToWideChar(CP_ACP, 0, szDCBparam, -1, NULL, 0);
 		wchar_t* pwText = new wchar_t[dwNum];
 		if (!MultiByteToWideChar(CP_ACP, 0, szDCBparam, -1, pwText, dwNum))
@@ -104,25 +82,25 @@ bool CSerialPort::InitPort(UINT portNo /*= 1*/, UINT baud /*= CBR_9600*/, char p
 			bIsSuccess = TRUE;
 		}
 
-		/** »ñÈ¡µ±Ç°´®¿ÚÅäÖÃ²ÎÊı,²¢ÇÒ¹¹Ôì´®¿ÚDCB²ÎÊı */
+		/** è·å–å½“å‰ä¸²å£é…ç½®å‚æ•°,å¹¶ä¸”æ„é€ ä¸²å£DCBå‚æ•° */
 		bIsSuccess = GetCommState(m_hComm, &dcb) && BuildCommDCB(pwText, &dcb);
-		/** ¿ªÆôRTS flow¿ØÖÆ */
+		/** å¼€å¯RTS flowæ§åˆ¶ */
 		dcb.fRtsControl = RTS_CONTROL_ENABLE;
 
-		/** ÊÍ·ÅÄÚ´æ¿Õ¼ä */
+		/** é‡Šæ”¾å†…å­˜ç©ºé—´ */
 		delete[] pwText;
 	}
 
 	if (bIsSuccess)
 	{
-		/** Ê¹ÓÃDCB²ÎÊıÅäÖÃ´®¿Ú×´Ì¬ */
+		/** ä½¿ç”¨DCBå‚æ•°é…ç½®ä¸²å£çŠ¶æ€ */
 		bIsSuccess = SetCommState(m_hComm, &dcb);
 	}
 
-	/**  Çå¿Õ´®¿Ú»º³åÇø */
+	/**  æ¸…ç©ºä¸²å£ç¼“å†²åŒº */
 	PurgeComm(m_hComm, PURGE_RXCLEAR | PURGE_TXCLEAR | PURGE_RXABORT | PURGE_TXABORT);
 
-	/** Àë¿ªÁÙ½ç¶Î */
+	/** ç¦»å¼€ä¸´ç•Œæ®µ */
 	LeaveCriticalSection(&m_csCommunicationSync);
 
 	return bIsSuccess == TRUE;
@@ -130,26 +108,26 @@ bool CSerialPort::InitPort(UINT portNo /*= 1*/, UINT baud /*= CBR_9600*/, char p
 
 bool CSerialPort::InitPort(UINT portNo, const LPDCB& plDCB)
 {
-	/** ´ò¿ªÖ¸¶¨´®¿Ú,¸Ãº¯ÊıÄÚ²¿ÒÑ¾­ÓĞÁÙ½çÇø±£»¤,ÉÏÃæÇë²»Òª¼Ó±£»¤ */
+	/** æ‰“å¼€æŒ‡å®šä¸²å£,è¯¥å‡½æ•°å†…éƒ¨å·²ç»æœ‰ä¸´ç•ŒåŒºä¿æŠ¤,ä¸Šé¢è¯·ä¸è¦åŠ ä¿æŠ¤ */
 	if (!openPort(portNo))
 	{
 		return false;
 	}
 
-	/** ½øÈëÁÙ½ç¶Î */
+	/** è¿›å…¥ä¸´ç•Œæ®µ */
 	EnterCriticalSection(&m_csCommunicationSync);
 
-	/** ÅäÖÃ´®¿Ú²ÎÊı */
+	/** é…ç½®ä¸²å£å‚æ•° */
 	if (!SetCommState(m_hComm, plDCB))
 	{
 		LeaveCriticalSection(&m_csCommunicationSync);
 		return false;
 	}
 
-	/**  Çå¿Õ´®¿Ú»º³åÇø */
+	/**  æ¸…ç©ºä¸²å£ç¼“å†²åŒº */
 	PurgeComm(m_hComm, PURGE_RXCLEAR | PURGE_TXCLEAR | PURGE_RXABORT | PURGE_TXABORT);
 
-	/** Àë¿ªÁÙ½ç¶Î */
+	/** ç¦»å¼€ä¸´ç•Œæ®µ */
 	LeaveCriticalSection(&m_csCommunicationSync);
 
 	return true;
@@ -157,7 +135,7 @@ bool CSerialPort::InitPort(UINT portNo, const LPDCB& plDCB)
 
 void CSerialPort::ClosePort()
 {
-	/** Èç¹ûÓĞ´®¿Ú±»´ò¿ª£¬¹Ø±ÕËü */
+	/** å¦‚æœæœ‰ä¸²å£è¢«æ‰“å¼€ï¼Œå…³é—­å®ƒ */
 	if (m_hComm != INVALID_HANDLE_VALUE)
 	{
 		CloseHandle(m_hComm);
@@ -167,30 +145,30 @@ void CSerialPort::ClosePort()
 
 bool CSerialPort::openPort(UINT portNo)
 {
-	/** ½øÈëÁÙ½ç¶Î */
+	/** è¿›å…¥ä¸´ç•Œæ®µ */
 	EnterCriticalSection(&m_csCommunicationSync);
 
-	/** °Ñ´®¿ÚµÄ±àºÅ×ª»»ÎªÉè±¸Ãû */
+	/** æŠŠä¸²å£çš„ç¼–å·è½¬æ¢ä¸ºè®¾å¤‡å */
 	char szPort[50];
 	sprintf_s(szPort, "COM%d", portNo);
 
-	/** ´ò¿ªÖ¸¶¨µÄ´®¿Ú */
-	m_hComm = CreateFileA(szPort,  /** Éè±¸Ãû,COM1,COM2µÈ */
-		GENERIC_READ | GENERIC_WRITE, /** ·ÃÎÊÄ£Ê½,¿ÉÍ¬Ê±¶ÁĞ´ */
-		0,                            /** ¹²ÏíÄ£Ê½,0±íÊ¾²»¹²Ïí */
-		NULL,                         /** °²È«ĞÔÉèÖÃ,Ò»°ãÊ¹ÓÃNULL */
-		OPEN_EXISTING,                /** ¸Ã²ÎÊı±íÊ¾Éè±¸±ØĞë´æÔÚ,·ñÔò´´½¨Ê§°Ü */
+	/** æ‰“å¼€æŒ‡å®šçš„ä¸²å£ */
+	m_hComm = CreateFileA(szPort,  /** è®¾å¤‡å,COM1,COM2ç­‰ */
+		GENERIC_READ | GENERIC_WRITE, /** è®¿é—®æ¨¡å¼,å¯åŒæ—¶è¯»å†™ */
+		0,                            /** å…±äº«æ¨¡å¼,0è¡¨ç¤ºä¸å…±äº« */
+		NULL,                         /** å®‰å…¨æ€§è®¾ç½®,ä¸€èˆ¬ä½¿ç”¨NULL */
+		OPEN_EXISTING,                /** è¯¥å‚æ•°è¡¨ç¤ºè®¾å¤‡å¿…é¡»å­˜åœ¨,å¦åˆ™åˆ›å»ºå¤±è´¥ */
 		0,
 		0);
 
-	/** Èç¹û´ò¿ªÊ§°Ü£¬ÊÍ·Å×ÊÔ´²¢·µ»Ø */
+	/** å¦‚æœæ‰“å¼€å¤±è´¥ï¼Œé‡Šæ”¾èµ„æºå¹¶è¿”å› */
 	if (m_hComm == INVALID_HANDLE_VALUE)
 	{
 		LeaveCriticalSection(&m_csCommunicationSync);
 		return false;
 	}
 
-	/** ÍË³öÁÙ½çÇø */
+	/** é€€å‡ºä¸´ç•ŒåŒº */
 	LeaveCriticalSection(&m_csCommunicationSync);
 
 	return true;
@@ -198,27 +176,23 @@ bool CSerialPort::openPort(UINT portNo)
 
 bool CSerialPort::OpenListenThread()
 {
-	/** ¼ì²âÏß³ÌÊÇ·ñÒÑ¾­¿ªÆôÁË */
+	/** æ£€æµ‹çº¿ç¨‹æ˜¯å¦å·²ç»å¼€å¯äº† */
 	if (m_hListenThread != INVALID_HANDLE_VALUE)
 	{
-		/** Ïß³ÌÒÑ¾­¿ªÆô */
+		/** çº¿ç¨‹å·²ç»å¼€å¯ */
 		return false;
 	}
 
 	s_bExit = false;
-	/** Ïß³ÌID */
+	/** çº¿ç¨‹ID */
 	UINT threadId;
-	/** ¿ªÆô´®¿ÚÊı¾İ¼àÌıÏß³Ì */
-<<<<<<< HEAD
-	m_hListenThread = (HANDLE)_beginthreadex(NULL, 0, ListenThread, this, 0, &threadId);
-=======
+	/** å¼€å¯ä¸²å£æ•°æ®ç›‘å¬çº¿ç¨‹ */
 	m_hListenThread = (HANDLE)_beginthreadex(NULL, 0, ListenThreadFunc, this, 0, &threadId);
->>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 	if (!m_hListenThread)
 	{
 		return false;
 	}
-	/** ÉèÖÃÏß³ÌµÄÓÅÏÈ¼¶,¸ßÓÚÆÕÍ¨Ïß³Ì */
+	/** è®¾ç½®çº¿ç¨‹çš„ä¼˜å…ˆçº§,é«˜äºæ™®é€šçº¿ç¨‹ */
 	if (!SetThreadPriority(m_hListenThread, THREAD_PRIORITY_ABOVE_NORMAL))
 	{
 		return false;
@@ -231,13 +205,13 @@ bool CSerialPort::CloseListenTread()
 {
 	if (m_hListenThread != INVALID_HANDLE_VALUE)
 	{
-		/** Í¨ÖªÏß³ÌÍË³ö */
+		/** é€šçŸ¥çº¿ç¨‹é€€å‡º */
 		s_bExit = true;
 
-		/** µÈ´ıÏß³ÌÍË³ö */
+		/** ç­‰å¾…çº¿ç¨‹é€€å‡º */
 		Sleep(10);
 
-		/** ÖÃÏß³Ì¾ä±úÎŞĞ§ */
+		/** ç½®çº¿ç¨‹å¥æŸ„æ— æ•ˆ */
 		CloseHandle(m_hListenThread);
 		m_hListenThread = INVALID_HANDLE_VALUE;
 	}
@@ -246,15 +220,15 @@ bool CSerialPort::CloseListenTread()
 
 UINT CSerialPort::GetBytesInCOM()
 {
-	DWORD dwError = 0;  /** ´íÎóÂë */
-	COMSTAT  comstat;   /** COMSTAT½á¹¹Ìå,¼ÇÂ¼Í¨ĞÅÉè±¸µÄ×´Ì¬ĞÅÏ¢ */
+	DWORD dwError = 0;  /** é”™è¯¯ç  */
+	COMSTAT  comstat;   /** COMSTATç»“æ„ä½“,è®°å½•é€šä¿¡è®¾å¤‡çš„çŠ¶æ€ä¿¡æ¯ */
 	memset(&comstat, 0, sizeof(COMSTAT));
 
 	UINT BytesInQue = 0;
-	/** ÔÚµ÷ÓÃReadFileºÍWriteFileÖ®Ç°,Í¨¹ı±¾º¯ÊıÇå³ıÒÔÇ°ÒÅÁôµÄ´íÎó±êÖ¾ */
+	/** åœ¨è°ƒç”¨ReadFileå’ŒWriteFileä¹‹å‰,é€šè¿‡æœ¬å‡½æ•°æ¸…é™¤ä»¥å‰é—ç•™çš„é”™è¯¯æ ‡å¿— */
 	if (ClearCommError(m_hComm, &dwError, &comstat))
 	{
-		BytesInQue = comstat.cbInQue; /** »ñÈ¡ÔÚÊäÈë»º³åÇøÖĞµÄ×Ö½ÚÊı */
+		BytesInQue = comstat.cbInQue; /** è·å–åœ¨è¾“å…¥ç¼“å†²åŒºä¸­çš„å­—èŠ‚æ•° */
 	}
 
 	return BytesInQue;
@@ -266,34 +240,27 @@ UINT CSerialPort::GetBytesInCOM()
 //	mySerialPort.WriteData(data, length);
 //}
 
-<<<<<<< HEAD
-UINT WINAPI CSerialPort::ListenThread(void* pParam)
-=======
 UINT WINAPI CSerialPort::ListenThreadFunc(void* pParam)
->>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
 {
-	/** µÃµ½±¾ÀàµÄÖ¸Õë */
+	/** å¾—åˆ°æœ¬ç±»çš„æŒ‡é’ˆ */
 	CSerialPort* pSerialPort = reinterpret_cast<CSerialPort*>(pParam);
 
-	// Ïß³ÌÑ­»·,ÂÖÑ¯·½Ê½¶ÁÈ¡´®¿ÚÊı¾İ  
+	// çº¿ç¨‹å¾ªç¯,è½®è¯¢æ–¹å¼è¯»å–ä¸²å£æ•°æ®  
 	while (!pSerialPort->s_bExit)
 	{
 		UINT BytesInQue = pSerialPort->GetBytesInCOM();
-		/** Èç¹û´®¿ÚÊäÈë»º³åÇøÖĞÎŞÊı¾İ,ÔòĞİÏ¢Ò»»áÔÙ²éÑ¯ */
+		/** å¦‚æœä¸²å£è¾“å…¥ç¼“å†²åŒºä¸­æ— æ•°æ®,åˆ™ä¼‘æ¯ä¸€ä¼šå†æŸ¥è¯¢ */
 		if (BytesInQue == 0)
 		{
 			Sleep(SLEEP_TIME_INTERVAL);
 			continue;
 		}
 
-<<<<<<< HEAD
-=======
 		/*MyUdpClient m;
 		m.SendPack();*/
 		//muc.SendPack();
 
->>>>>>> 041e2bb049fbc4ff41a7495e84825a5aaefa0aef
-		/** ¶ÁÈ¡ÊäÈë»º³åÇøÖĞµÄÊı¾İ²¢Êä³öÏÔÊ¾ */
+		/** è¯»å–è¾“å…¥ç¼“å†²åŒºä¸­çš„æ•°æ®å¹¶è¾“å‡ºæ˜¾ç¤º */
 		char cRecved = 0x00;
 		do
 		{
@@ -318,24 +285,24 @@ bool CSerialPort::ReadChar(char& cRecved)
 		return false;
 	}
 
-	/** ÁÙ½çÇø±£»¤ */
+	/** ä¸´ç•ŒåŒºä¿æŠ¤ */
 	EnterCriticalSection(&m_csCommunicationSync);
 
-	/** ´Ó»º³åÇø¶ÁÈ¡Ò»¸ö×Ö½ÚµÄÊı¾İ */
+	/** ä»ç¼“å†²åŒºè¯»å–ä¸€ä¸ªå­—èŠ‚çš„æ•°æ® */
 	bResult = ReadFile(m_hComm, &cRecved, 1, &BytesRead, NULL);
 	if ((!bResult))
 	{
-		/** »ñÈ¡´íÎóÂë,¿ÉÒÔ¸ù¾İ¸Ã´íÎóÂë²é³ö´íÎóÔ­Òò */
+		/** è·å–é”™è¯¯ç ,å¯ä»¥æ ¹æ®è¯¥é”™è¯¯ç æŸ¥å‡ºé”™è¯¯åŸå›  */
 		DWORD dwError = GetLastError();
 
-		/** Çå¿Õ´®¿Ú»º³åÇø */
+		/** æ¸…ç©ºä¸²å£ç¼“å†²åŒº */
 		PurgeComm(m_hComm, PURGE_RXCLEAR | PURGE_RXABORT);
 		LeaveCriticalSection(&m_csCommunicationSync);
 
 		return false;
 	}
 
-	/** Àë¿ªÁÙ½çÇø */
+	/** ç¦»å¼€ä¸´ç•ŒåŒº */
 	LeaveCriticalSection(&m_csCommunicationSync);
 
 	return (BytesRead == 1);
@@ -351,22 +318,22 @@ bool CSerialPort::WriteData(unsigned char* pData, unsigned int length)
 		return false;
 	}
 
-	/** ÁÙ½çÇø±£»¤ */
+	/** ä¸´ç•ŒåŒºä¿æŠ¤ */
 	EnterCriticalSection(&m_csCommunicationSync);
 
-	/** Ïò»º³åÇøĞ´ÈëÖ¸¶¨Á¿µÄÊı¾İ */
+	/** å‘ç¼“å†²åŒºå†™å…¥æŒ‡å®šé‡çš„æ•°æ® */
 	bResult = WriteFile(m_hComm, pData, length, &BytesToSend, NULL);
 	if (!bResult)
 	{
 		DWORD dwError = GetLastError();
-		/** Çå¿Õ´®¿Ú»º³åÇø */
+		/** æ¸…ç©ºä¸²å£ç¼“å†²åŒº */
 		PurgeComm(m_hComm, PURGE_RXCLEAR | PURGE_RXABORT);
 		LeaveCriticalSection(&m_csCommunicationSync);
 
 		return false;
 	}
 
-	/** Àë¿ªÁÙ½çÇø */
+	/** ç¦»å¼€ä¸´ç•ŒåŒº */
 	LeaveCriticalSection(&m_csCommunicationSync);
 
 	return true;
@@ -374,24 +341,24 @@ bool CSerialPort::WriteData(unsigned char* pData, unsigned int length)
 
 bool CSerialPort::OpenTerminalThread()
 {
-	/** ¼ì²âÏß³ÌÊÇ·ñÒÑ¾­¿ªÆôÁË */
+	/** æ£€æµ‹çº¿ç¨‹æ˜¯å¦å·²ç»å¼€å¯äº† */
 	if (m_TerminalThread != INVALID_HANDLE_VALUE)
 	{
-		/** Ïß³ÌÒÑ¾­¿ªÆô */
+		/** çº¿ç¨‹å·²ç»å¼€å¯ */
 		std::cout << "Termianl thread already open\n\n";
 		return false;
 	}
 
 	terminalExit = false;
-	/** Ïß³ÌID */
+	/** çº¿ç¨‹ID */
 	UINT threadId;
-	/** ¿ªÆô´®¿ÚÊı¾İ¼àÌıÏß³Ì */
+	/** å¼€å¯ä¸²å£æ•°æ®ç›‘å¬çº¿ç¨‹ */
 	m_TerminalThread = (HANDLE)_beginthreadex(NULL, 0, TerminalThreadFunc, this, 0, &threadId);
 	if (!m_TerminalThread)
 	{
 		return false;
 	}
-	/** ÉèÖÃÏß³ÌµÄÓÅÏÈ¼¶,¸ßÓÚÆÕÍ¨Ïß³Ì */
+	/** è®¾ç½®çº¿ç¨‹çš„ä¼˜å…ˆçº§,é«˜äºæ™®é€šçº¿ç¨‹ */
 	if (!SetThreadPriority(m_TerminalThread, THREAD_PRIORITY_ABOVE_NORMAL))
 	{
 		return false;
@@ -400,34 +367,27 @@ bool CSerialPort::OpenTerminalThread()
 	return true;
 }
 
-//unsigned char data[100];
-//int length = strToHex((char*)TEST_COMMAND, data);
-//for (int i = 0; i < 1; ++i) {
-//	mySerialPort.WriteData(data, length);
-//}
-
-//UINT WINAPI CSerialPort::ListenThread(void* pParam)
 UINT WINAPI CSerialPort::TerminalThreadFunc(void* pParam)
 {
-	/** µÃµ½±¾ÀàµÄÖ¸Õë */
+	/** å¾—åˆ°æœ¬ç±»çš„æŒ‡é’ˆ */
 	CSerialPort* pSerialPort = reinterpret_cast<CSerialPort*>(pParam);
 
 	char exitflag = '\0';
 	int flag = 1;
 
-	// Ïß³ÌÑ­»·,ÂÖÑ¯·½Ê½¶ÁÈ¡ÖÕ¶ËÊı¾İ  
+	// çº¿ç¨‹å¾ªç¯,è½®è¯¢æ–¹å¼è¯»å–ç»ˆç«¯æ•°æ®  
 	while (!pSerialPort->terminalExit)
 	{
 		if (_kbhit())
 		{
-			// º¯ÊıÃû: getch()
-			// ¹¦ÄÜ¼°·µ»ØÖµ: ´Ó¼üÅÌÉÏ¶ÁÈ¡µ½µÄ×Ö·û
+			// å‡½æ•°å: getch()
+			// åŠŸèƒ½åŠè¿”å›å€¼: ä»é”®ç›˜ä¸Šè¯»å–åˆ°çš„å­—ç¬¦
 			std::string temp;
 			std::cin >> temp;
 			std::cout <<"\n";
 			if (exitflag == 'q' || exitflag == 'Q')
 			{
-				std::cout << "ÓÃ»§ÊäÈë:" << exitflag << ", ÍË³öÑ­»·\n";
+				std::cout << "ç”¨æˆ·è¾“å…¥:" << exitflag << ", é€€å‡ºå¾ªç¯\n";
 				flag = 0;
 				break;
 			}
@@ -442,13 +402,13 @@ bool CSerialPort::CloseTerminalThread()
 {
 	if (m_TerminalThread != INVALID_HANDLE_VALUE)
 	{
-		/** Í¨ÖªÏß³ÌÍË³ö */
+		/** é€šçŸ¥çº¿ç¨‹é€€å‡º */
 		terminalExit = true;
 
-		/** µÈ´ıÏß³ÌÍË³ö */
+		/** ç­‰å¾…çº¿ç¨‹é€€å‡º */
 		Sleep(10);
 
-		/** ÖÃÏß³Ì¾ä±úÎŞĞ§ */
+		/** ç½®çº¿ç¨‹å¥æŸ„æ— æ•ˆ */
 		CloseHandle(m_TerminalThread);
 		m_TerminalThread = INVALID_HANDLE_VALUE;
 	}

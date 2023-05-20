@@ -1,3 +1,5 @@
+﻿/*工具类*/
+
 #include <string>
 #include <iostream>
 

@@ -1,56 +1,39 @@
-#include "MyUdpClient.h"
+﻿#include "MyUdpClient.h"
 
-//?????????????????????????���캯���޷�����������,Ϊʲôserial�Ǹ�����������ʱ�򲻼Ӵ�����,vs��bug��
-//���캯��,��ʼ����
+//构造函数中主要进行udpsocket的初始化操作
 MyUdpClient::MyUdpClient() {
-	printf("Cons\n");
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-	init = WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-	localPort = LOCAL_PORT;         //���ؼ����˿�
-	Port = REMOTE_PORT;				//�����������˿�
+	localPort = LOCAL_PORT;         
+	remotePort = REMOTE_PORT;				
 
 	BufLen = SENDBUFFSIZE;
 
-	SendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	NetSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-	//���÷�������ַ
-	RecvAddr.sin_family = AF_INET;
-	RecvAddr.sin_port = htons(Port);
-	inet_pton(AF_INET, SERVER_IP, &RecvAddr.sin_addr);
+	//设置远端端口
+	RemtAddr.sin_family = AF_INET;
+	RemtAddr.sin_port = htons(remotePort);
+	inet_pton(AF_INET, REMOTE_IP, &RemtAddr.sin_addr);
 
-	SenderAddr.sin_family = AF_INET;
-	SenderAddr.sin_port = htons(localPort);
-	SenderAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	bind(SendSocket, (SOCKADDR*)&SenderAddr, sizeof(SenderAddr));
+	//设置本地端口
+	LoclAddr.sin_family = AF_INET;
+	LoclAddr.sin_port = htons(localPort);
+	LoclAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	bind(NetSocket, (SOCKADDR*)&LoclAddr, sizeof(LoclAddr));
 
-	l_naddLen1 = sizeof(SenderAddr);
+	l_naddLen1 = sizeof(LoclAddr);
 
 	sendThread = INVALID_HANDLE_VALUE;
 	revThread = INVALID_HANDLE_VALUE;
 }
 
 MyUdpClient::~MyUdpClient() {
-	std::cout << "delete\n";
-	closesocket(SendSocket);
+	closesocket(NetSocket);
 	WSACleanup();
 	CloseRevThread();
 	CloseSendThread();
 }
-
-/** �߳��˳���־ */
-bool MyUdpClient::sendExit = false;
-bool MyUdpClient::revExit = false;
-
-//static������ʼ��
-SOCKET MyUdpClient::SendSocket = 0;
-sockaddr_in MyUdpClient::RecvAddr;
-sockaddr_in MyUdpClient::SenderAddr;
-int MyUdpClient::BufLen;
-int MyUdpClient::l_naddLen1;
-
-const UINT SLEEP_TIME = 1;
-
 
 bool MyUdpClient::OpenRevThread() {
 	if (revThread != INVALID_HANDLE_VALUE) {
@@ -76,12 +59,12 @@ bool MyUdpClient::OpenRevThread() {
 	return true;
 }
 
-UINT WINAPI MyUdpClient::RevThreadFunc(void* pParam) {
+UINT WINAPI RevThreadFunc(void* pParam) {
 	MyUdpClient * mUdpClient = reinterpret_cast<MyUdpClient*>(pParam);
 
 	while (!mUdpClient->revExit) {
 		char RevBuf[REVBUFFSIZE];
-		int l_nReadLen = recvfrom(SendSocket, RevBuf, BufLen, 0, (struct sockaddr*)&SenderAddr, &l_naddLen1);
+		int l_nReadLen = recvfrom(mUdpClient->NetSocket, RevBuf, mUdpClient->BufLen, 0, (struct sockaddr*)&(mUdpClient->LoclAddr), &(mUdpClient->l_naddLen1));
 		if (l_nReadLen) {
 			printf("recved\n");
 
@@ -91,7 +74,7 @@ UINT WINAPI MyUdpClient::RevThreadFunc(void* pParam) {
 				//csp->WriteData(data, length);
 			}
 		}
-		printf("\nread��");
+		printf("\nread:");
 		for (int i = 0; i < l_nReadLen; i++)
 		{
 			printf("%02x ", RevBuf[i]);
@@ -105,24 +88,24 @@ UINT WINAPI MyUdpClient::RevThreadFunc(void* pParam) {
 
 bool MyUdpClient::OpenSendThread()
 {
-	/** ����߳��Ƿ��Ѿ������� */
+	/** 检测线程是否已经开启了 */
 	if (sendThread != INVALID_HANDLE_VALUE)
 	{
-		/** �߳��Ѿ����� */
+		/** 线程已经开启 */
 		std::cout << "Send thread already open\n\n";
 		return false;
 	}
 
 	sendExit = false;
-	/** �߳�ID */
+	/** 线程ID */
 	UINT threadId;
-	/** �����������ݼ����߳� */
+
 	sendThread = (HANDLE)_beginthreadex(NULL, 0, SendThreadFunc, this, 0, &threadId);
 	if (!sendThread)
 	{
 		return false;
 	}
-	/** �����̵߳����ȼ�,������ͨ�߳� */
+	/** 设置线程的优先级,高于普通线程 */
 	if (!SetThreadPriority(sendThread, THREAD_PRIORITY_ABOVE_NORMAL))
 	{
 		return false;
@@ -131,20 +114,20 @@ bool MyUdpClient::OpenSendThread()
 	return true;
 }
 
-UINT WINAPI MyUdpClient::SendThreadFunc(void* pParam) {
+UINT WINAPI SendThreadFunc(void* pParam) {
 	MyUdpClient* mUdpClient = reinterpret_cast<MyUdpClient*>(pParam);
 
 	while (!mUdpClient->sendExit) {
 		char SendBuf[SENDBUFFSIZE];
 		strcpy_s(SendBuf, "hello");
 
-		int l_nLen = sendto(SendSocket, SendBuf, strlen(SendBuf), 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
+		int l_nLen = sendto(mUdpClient->NetSocket, SendBuf, strlen(SendBuf), 0, (SOCKADDR*)&(mUdpClient->RemtAddr), sizeof(mUdpClient->RemtAddr));
 		if (l_nLen < 0)
 		{
-			perror("����ʧ��");
+			perror("发送失败");
 		}
 
-		printf("\nSend��");
+		printf("\nSend:");
 		for (int i = 0; i < strlen(SendBuf); i++)
 		{
 			printf("%02x ", (UCHAR)SendBuf[i]);
@@ -160,13 +143,13 @@ UINT WINAPI MyUdpClient::SendThreadFunc(void* pParam) {
 bool MyUdpClient::CloseRevThread() {
 	if (revThread != INVALID_HANDLE_VALUE)
 	{
-		/** ֪ͨ�߳��˳� */
+		/** 通知线程退出 */
 		revExit = true;
 
-		/** �ȴ��߳��˳� */
+		/** 等待线程退出 */
 		Sleep(10);
 
-		/** ���߳̾����Ч */
+		/** 置线程句柄无效 */
 		CloseHandle(revThread);
 		revThread = INVALID_HANDLE_VALUE;
 	}
@@ -176,27 +159,27 @@ bool MyUdpClient::CloseRevThread() {
 bool MyUdpClient::CloseSendThread() {
 	if (sendThread != INVALID_HANDLE_VALUE)
 	{
-		/** ֪ͨ�߳��˳� */
+		/** 通知线程退出 */
 		sendExit = true;
 
-		/** �ȴ��߳��˳� */
+		/** 等待线程退出 */
 		Sleep(10);
 
-		/** ���߳̾����Ч */
+		/** 置线程句柄无效 */
 		CloseHandle(sendThread);
 		sendThread = INVALID_HANDLE_VALUE;
 	}
 	return true;
 }
 
-void MyUdpClient::StartThread() {
-	/*bool sendStatus = OpenSendThread();
+void MyUdpClient::StartThreadRxTx() {
+	bool sendStatus = OpenSendThread();
 	if (!sendStatus) {
 		std::cout << "send thread error\n";
 	}
 	else {
 		std::cout << "udp send thread up\n";
-	}*/
+	}
 
 	bool revStatus = OpenRevThread();
 	if (!revStatus) {
@@ -211,13 +194,13 @@ int MyUdpClient::SendPack() {
 	char SendBuf[SENDBUFFSIZE];
 	strcpy_s(SendBuf, "hello");
 
-	int l_nLen = sendto(SendSocket, SendBuf, strlen(SendBuf), 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
+	int l_nLen = sendto(NetSocket, SendBuf, strlen(SendBuf), 0, (SOCKADDR*)&RemtAddr, sizeof(RemtAddr));
 	if (l_nLen < 0)
 	{
-		perror("����ʧ��");
+		perror("发送失败");
 	}
 
-	printf("\nSend��");
+	printf("\nSend:");
 	for (int i = 0; i < strlen(SendBuf); i++)
 	{
 		printf("%02x ", (UCHAR)SendBuf[i]);

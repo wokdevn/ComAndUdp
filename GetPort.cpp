@@ -1,57 +1,21 @@
-#include "GetPort.h"
+ï»¿#include "GetPort.h"
 
+//åŒå­—èŠ‚ç±»å‹è½¬æ¢æˆå¤šä¸ªå­—èŠ‚
 char* wideCharToMultiByte(wchar_t* pWCStrKey)
 {
-    //µÚÒ»´Îµ÷ÓÃÈ·ÈÏ×ª»»ºóµ¥×Ö½Ú×Ö·û´®µÄ³¤¶È£¬ÓÃÓÚ¿ª±Ù¿Õ¼ä
+    //ç¬¬ä¸€æ¬¡è°ƒç”¨ç¡®è®¤è½¬æ¢åå•å­—èŠ‚å­—ç¬¦ä¸²çš„é•¿åº¦ï¼Œç”¨äºå¼€è¾Ÿç©ºé—´
     int pSize = WideCharToMultiByte(CP_OEMCP, 0, pWCStrKey, wcslen(pWCStrKey), NULL, 0, NULL, NULL);
     char* pCStrKey = new char[pSize + 1];
-    //µÚ¶ş´Îµ÷ÓÃ½«Ë«×Ö½Ú×Ö·û´®×ª»»³Éµ¥×Ö½Ú×Ö·û´®
+    //ç¬¬äºŒæ¬¡è°ƒç”¨å°†åŒå­—èŠ‚å­—ç¬¦ä¸²è½¬æ¢æˆå•å­—èŠ‚å­—ç¬¦ä¸²
     WideCharToMultiByte(CP_OEMCP, 0, pWCStrKey, wcslen(pWCStrKey), pCStrKey, pSize, NULL, NULL);
     pCStrKey[pSize] = '\0';
     return pCStrKey;
 
-    //Èç¹ûÏëÒª×ª»»³Éstring£¬Ö±½Ó¸³Öµ¼´¿É
+    //å¦‚æœæƒ³è¦è½¬æ¢æˆstringï¼Œç›´æ¥èµ‹å€¼å³å¯
     //string pKey = pCStrKey;
 }
 
-
-//TODO:fix this function
-std::vector<std::string> getComPortByReg()
-{
-    HKEY hKey;
-    wchar_t portName[256], w_commName[256];
-    std::vector<std::string> comName;
-    //´ò¿ª´®¿Ú×¢²á±í¶ÔÓ¦µÄ¼üÖµ  
-    if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Hardware\\DeviceMap\\SerialComm"), NULL, KEY_READ, &hKey))
-    {
-        int i = 0;
-        int mm = 0;
-        DWORD  dwLong, dwSize;
-        while (TRUE)
-        {
-            dwLong = dwSize = sizeof(portName);
-            //Ã¶¾Ù´®¿Ú
-            if (ERROR_NO_MORE_ITEMS == ::RegEnumValue(hKey, i, portName, &dwLong, NULL, NULL, (PUCHAR)w_commName, &dwSize))
-            {
-                break;
-            }
-            char* commName = wideCharToMultiByte(w_commName);
-            comName.push_back(commName);
-            delete[] commName;
-            i++;
-        }
-        //¹Ø±Õ×¢²á±í
-        RegCloseKey(hKey);
-    }
-    else
-    {
-        std::cout<<"ÄúµÄ¼ÆËã»úµÄ×¢²á±íÉÏÃ»ÓĞHKEY_LOCAL_MACHINE:Hardware\\DeviceMap\\SerialCommÏî\n";
-    }
-    //·µ»Ø´®¿ÚºÅ
-    return comName;
-}
-
-void getComPortByQuery() //added function to find the present serial 
+void listComPortByQuery(std::vector<int>& list)
 {
     std::cout << "COM device on PC:\n";
     TCHAR lpTargetPath[5000]; // buffer to store the path of the COMPORTS
@@ -70,6 +34,7 @@ void getComPortByQuery() //added function to find the present serial
         if (test != 0) //QueryDosDevice returns zero if it didn't find an object
         {
             _tprintf(_T("%s\n"), (LPCTSTR)ComName); // add to the ComboBox
+            list.push_back(i);
             gotPort = 1; // found port
         }
 
@@ -84,4 +49,40 @@ void getComPortByQuery() //added function to find the present serial
     if (!gotPort) // if not port
         std::cout<<"No Active Ports Found\n\n"; // to display error message incase no ports found
 
+}
+
+//TODO:fix this function
+std::vector<std::string> getComPortByReg()
+{
+    HKEY hKey;
+    wchar_t portName[256], w_commName[256];
+    std::vector<std::string> comName;
+    //æ‰“å¼€ä¸²å£æ³¨å†Œè¡¨å¯¹åº”çš„é”®å€¼  
+    if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Hardware\\DeviceMap\\SerialComm"), NULL, KEY_READ, &hKey))
+    {
+        int i = 0;
+        int mm = 0;
+        DWORD  dwLong, dwSize;
+        while (TRUE)
+        {
+            dwLong = dwSize = sizeof(portName);
+            //æšä¸¾ä¸²å£
+            if (ERROR_NO_MORE_ITEMS == ::RegEnumValue(hKey, i, portName, &dwLong, NULL, NULL, (PUCHAR)w_commName, &dwSize))
+            {
+                break;
+            }
+            char* commName = wideCharToMultiByte(w_commName);
+            comName.push_back(commName);
+            delete[] commName;
+            i++;
+        }
+        //å…³é—­æ³¨å†Œè¡¨
+        RegCloseKey(hKey);
+    }
+    else
+    {
+        std::cout << "æ‚¨çš„è®¡ç®—æœºçš„æ³¨å†Œè¡¨ä¸Šæ²¡æœ‰HKEY_LOCAL_MACHINE:Hardware\\DeviceMap\\SerialCommé¡¹\n";
+    }
+    //è¿”å›ä¸²å£å·
+    return comName;
 }
