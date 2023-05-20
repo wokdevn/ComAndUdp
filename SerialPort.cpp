@@ -1,14 +1,11 @@
-﻿
-#include "SerialPort.h"  
+#include "SerialPort.h"
 #include <process.h>  
 #include <iostream>  
 #include <conio.h>
 
-/** 线程退出标志 */
+MyUdpClient* CSerialPort::muc = NULL;
 bool CSerialPort::s_bExit = false;
 bool CSerialPort::terminalExit = false;
-/** 当串口无数据时,sleep至下次查询间隔的时间,单位:毫秒 */
-const UINT SLEEP_TIME_INTERVAL = 1;
 
 CSerialPort::CSerialPort(void)
 	: m_hListenThread(INVALID_HANDLE_VALUE)
@@ -16,6 +13,11 @@ CSerialPort::CSerialPort(void)
 	m_hComm = INVALID_HANDLE_VALUE;
 	m_hListenThread = INVALID_HANDLE_VALUE;
 	m_TerminalThread = INVALID_HANDLE_VALUE;
+
+	s_bExit = false;
+	terminalExit = false;
+
+	muc = NULL;
 
 	//Critical区初始化
 	InitializeCriticalSection(&m_csCommunicationSync);
@@ -252,13 +254,14 @@ UINT WINAPI CSerialPort::ListenThreadFunc(void* pParam)
 		/** 如果串口输入缓冲区中无数据,则休息一会再查询 */
 		if (BytesInQue == 0)
 		{
-			Sleep(SLEEP_TIME_INTERVAL);
+			Sleep(SLEEP_TIME_SERIAL);
 			continue;
 		}
 
 		/*MyUdpClient m;
 		m.SendPack();*/
-		//muc.SendPack();
+		MyUdpClient* mm = new MyUdpClient();
+		mm->SendPack();
 
 		/** 读取输入缓冲区中的数据并输出显示 */
 		char cRecved = 0x00;
@@ -392,7 +395,7 @@ UINT WINAPI CSerialPort::TerminalThreadFunc(void* pParam)
 				break;
 			}
 		}
-		Sleep(SLEEP_TIME_INTERVAL);
+		Sleep(SLEEP_TIME_SERIAL);
 	}
 
 	return 0;

@@ -1,7 +1,5 @@
-/*主程序*/
-
+/*main program*/
 #include <iostream>
-
 #include "SerialPort.h"
 #include "GetPort.h"
 #include "Test.h"
@@ -12,7 +10,7 @@
 int main()
 {
 	std::vector<int> listCom;
-	listComPortByQuery(listCom);	//GetPort中还有一个通过注册表的方法,但是之前测试有问题
+	listComPortByQuery(listCom);	//GetPort have another way, but exits problem
 
 	CSerialPort mySerialPort;
 
@@ -47,12 +45,45 @@ int main()
 		mySerialPort.WriteData(data, length);
 	}*/
 
-	//MyUdpClient m;
-	////m.setcsp(&mySerialPort);
-	//m.StartThread();
+	MyUdpClient m;
+	bool uThreadStatus = m.OpenRevThread();
+	if (!uThreadStatus) {
+		std::cout << "rev thread error\n";
+	}
+	else {
+		std::cout << "udp rev thread up\n";
+	}
 
-	//防止主程序退出
-	while (1) {}
+	//send test
+	//for (int i = 0; i < 10; ++i) {
+	//	m.SendPack();
+
+	//	Sleep(1000);
+	//}
+
+	//while (1) {
+	//	char RevBuf[REVBUFFSIZE];
+	//	int l_nReadLen = recvfrom(m.SendSocket, RevBuf, m.BufLen, 0, (struct sockaddr*)&(m.SenderAddr), &(m.l_naddLen1));
+	//	if (l_nReadLen) {
+	//		printf("recved\n");
+
+	//		//test use
+	//		m.SendPack();
+
+	//		unsigned char data[100];
+	//		int length = strToHex((char*)N_DIR, data);
+	//		for (int i = 0; i < 1; ++i) {
+	//			mySerialPort.WriteData(data, length);
+	//		}
+	//	}
+	//	printf("\nread：");
+	//	for (int i = 0; i < l_nReadLen; i++)
+	//	{
+	//		printf("%02x ", RevBuf[i]);
+	//	}
+
+	//	Sleep(1);
+	//}
 
 	return 0;
 }

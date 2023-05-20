@@ -1,15 +1,98 @@
-#ifndef SERIALPORT_H_  
-#define SERIALPORT_H_  
 //TODO:测试下,多个实例能否利用同一个COM端口,如果可以的话,那从udp那里调用可能会简单些
+#include <winsock2.h>
 #include <Windows.h>
+#include <stdio.h>
+#include <Ws2tcpip.h>
+#include <process.h>
+#include <iostream>
+#include "Command.h"
+#include "Util.h" 
 
+//预处理指令,这里的作用是指定链接库
+#pragma comment(lib,"ws2_32.lib")
+
+//参数设置
+#define REMOTE_PORT 8001
+#define LOCAL_PORT  8000
+#define REMOTE_IP "192.168.0.27"
+#define SENDBUFFSIZE 1024
+#define REVBUFFSIZE 1024
+#define SLEEP_TIME_SERIAL 1
+#define SLEEP_TIME_UDP 1
+
+using namespace std;
+
+class CSerialPort;
+class MyUdpClient
+{
+public:
+	MyUdpClient();
+	~MyUdpClient();
+	static CSerialPort * csp;
+
+public:
+	bool OpenRevThread();
+	bool OpenSendThread();
+	bool CloseRevThread();
+
+	bool CloseSendThread();
+	void StartThreadTxRx();
+	int SendPack();
+
+	//_stdcall的方法,用于_beginthreadex调用,不能放在类中,否则得定义成static的
+	static UINT WINAPI RevThreadFunc(void* pParam);
+	static UINT WINAPI SendThreadFunc(void* pParam);
+
+	static SOCKET NetSocket;
+	static sockaddr_in RemtAddr;
+	static sockaddr_in LoclAddr;
+	static int BufLen;
+	static int l_naddLen1;
+	WSADATA wsaData;					 //用于启动套接字,主要是调用起来动态链接库
+	int localPort = LOCAL_PORT;
+	int remotePort = REMOTE_PORT;
+
+	/** 线程退出标志变量 */
+	static bool sendExit;
+	static bool revExit;
+
+	/** 线程句柄 */
+	volatile HANDLE sendThread;
+	volatile HANDLE revThread;
+};
+
+
+
+
+//TODO:测试下,多个实例能否利用同一个COM端口,如果可以的话,那从udp那里调用可能会简单些
 class CSerialPort
 {
 public:
 	CSerialPort(void);
 	~CSerialPort(void);
+	static MyUdpClient* muc;
 
 public:
+
+	/** 串口监听线程
+	*
+	*  监听来自串口的数据和信息
+	*  @param:  void * pParam 线程参数
+	*  @return: UINT WINAPI 线程返回值
+	*  @note:
+	*  @see:
+	*/
+	static UINT WINAPI ListenThreadFunc(void* pParam);
+
+	/** 终端监听线程
+	*
+	*  监听来自终端的数据和信息
+	*  @param:  void * pParam 线程参数
+	*  @return: UINT WINAPI 线程返回值
+	*  @note:
+	*  @see:
+	*/
+	static UINT WINAPI TerminalThreadFunc(void* pParam);
 
 	/** 初始化串口函数
 	*
@@ -66,16 +149,6 @@ public:
 	*  @see:
 	*/
 	bool WriteData(unsigned char* pData, unsigned int length);
-
-	/** 终端监听线程
-	*
-	*  监听来自终端的数据和信息
-	*  @param:  void * pParam 线程参数
-	*  @return: UINT WINAPI 线程返回值
-	*  @note:
-	*  @see:
-	*/
-	static UINT WINAPI TerminalThreadFunc(void* pParam);
 
 	/** 开启终端输入监听线程
 	*
@@ -135,24 +208,15 @@ private:
 	*/
 	void ClosePort();
 
-	/** 串口监听线程
-	*
-	*  监听来自串口的数据和信息
-	*  @param:  void * pParam 线程参数
-	*  @return: UINT WINAPI 线程返回值
-	*  @note:
-	*  @see:
-	*/
-	static UINT WINAPI ListenThreadFunc(void* pParam);
+public:
+	/** 线程退出标志变量 */
+	static bool s_bExit;
+	static bool terminalExit;
 
 private:
 
 	/** 串口句柄 */
 	HANDLE  m_hComm;
-
-	/** 线程退出标志变量 */
-	static bool s_bExit;
-	static bool terminalExit;
 
 	/** 线程句柄 */
 	volatile HANDLE    m_hListenThread;
@@ -162,5 +226,3 @@ private:
 	CRITICAL_SECTION   m_csCommunicationSync;        //!< 互斥操作串口
 
 };
-
-#endif //SERIALPORT_H_ 

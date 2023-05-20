@@ -1,4 +1,14 @@
-﻿#include "MyUdpClient.h"
+#include "SerialPort.h"
+
+CSerialPort* MyUdpClient::csp = NULL;
+/** 线程退出标志 */
+bool MyUdpClient::sendExit = false;
+bool MyUdpClient::revExit = false;
+static SOCKET NetSocket = 0;
+static sockaddr_in RemtAddr;
+static sockaddr_in LoclAddr;
+static int BufLen;
+static int l_naddLen1;
 
 //构造函数中主要进行udpsocket的初始化操作
 MyUdpClient::MyUdpClient() {
@@ -59,7 +69,7 @@ bool MyUdpClient::OpenRevThread() {
 	return true;
 }
 
-UINT WINAPI RevThreadFunc(void* pParam) {
+UINT WINAPI MyUdpClient::RevThreadFunc(void* pParam) {
 	MyUdpClient * mUdpClient = reinterpret_cast<MyUdpClient*>(pParam);
 
 	while (!mUdpClient->revExit) {
@@ -71,7 +81,7 @@ UINT WINAPI RevThreadFunc(void* pParam) {
 			unsigned char data[100];
 			int length = strToHex((char*)N_DIR, data);
 			for (int i = 0; i < 1; ++i) {
-				//csp->WriteData(data, length);
+				mUdpClient->csp->WriteData(data, length);
 			}
 		}
 		printf("\nread:");
@@ -80,7 +90,7 @@ UINT WINAPI RevThreadFunc(void* pParam) {
 			printf("%02x ", RevBuf[i]);
 		}
 
-		Sleep(SLEEP_TIME);
+		Sleep(SLEEP_TIME_UDP);
 	}
 
 	return 0;
@@ -114,7 +124,7 @@ bool MyUdpClient::OpenSendThread()
 	return true;
 }
 
-UINT WINAPI SendThreadFunc(void* pParam) {
+UINT WINAPI MyUdpClient::SendThreadFunc(void* pParam) {
 	MyUdpClient* mUdpClient = reinterpret_cast<MyUdpClient*>(pParam);
 
 	while (!mUdpClient->sendExit) {
@@ -133,7 +143,7 @@ UINT WINAPI SendThreadFunc(void* pParam) {
 			printf("%02x ", (UCHAR)SendBuf[i]);
 		}
 
-		Sleep(SLEEP_TIME);
+		Sleep(SLEEP_TIME_UDP);
 	}
 	
 
@@ -172,7 +182,7 @@ bool MyUdpClient::CloseSendThread() {
 	return true;
 }
 
-void MyUdpClient::StartThreadRxTx() {
+void MyUdpClient::StartThreadTxRx() {
 	bool sendStatus = OpenSendThread();
 	if (!sendStatus) {
 		std::cout << "send thread error\n";
@@ -192,7 +202,7 @@ void MyUdpClient::StartThreadRxTx() {
 
 int MyUdpClient::SendPack() {
 	char SendBuf[SENDBUFFSIZE];
-	strcpy_s(SendBuf, "hello");
+	strcpy_s(SendBuf, "hellov1");
 
 	int l_nLen = sendto(NetSocket, SendBuf, strlen(SendBuf), 0, (SOCKADDR*)&RemtAddr, sizeof(RemtAddr));
 	if (l_nLen < 0)
