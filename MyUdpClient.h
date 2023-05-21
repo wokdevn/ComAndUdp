@@ -20,7 +20,6 @@
 #define REVBUFFSIZE 1024
 #define SLEEP_TIME_UDP 1
 
-
 using namespace std;
 
 class MyUdpClient

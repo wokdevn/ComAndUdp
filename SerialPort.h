@@ -1,8 +1,29 @@
-//TODO:测试下,多个实例能否利用同一个COM端口,如果可以的话,那从udp那里调用可能会简单些
 #include <Windows.h>
+#include "Config.h"
 
 #define SLEEP_TIME_SERIAL 1
 
+#ifndef COM_PORT
+#define COM_PORT 1
+#endif // !COM_PORT
+
+#ifndef BAUD_RATE
+#define BAUD_RATE CBR_115200
+#endif // !BAUD_RATE
+
+#ifndef PARITY
+#define PARITY 'N'
+#endif // !PARITY
+
+#ifndef DATA_BITS
+#define DATA_BITS 8
+#endif // !DATA_BITS
+
+#ifndef STOP_BITS
+#define STOP_BITS 1
+#endif // !STOP_BITS
+
+class MyUdpClient;
 class CSerialPort
 {
 public:
@@ -45,7 +66,7 @@ public:
 	*           /n本串口类析构时会自动关闭串口,无需额外执行关闭串口
 	*  @see:
 	*/
-	bool InitPort(UINT  portNo = 1, UINT  baud = CBR_115200, char  parity = 'N', UINT  databits = 8, UINT  stopsbits = 1, DWORD dwCommEvents = EV_RXCHAR);
+	bool InitPort(UINT  portNo = COM_PORT, UINT  baud = BAUD_RATE, char  parity = PARITY, UINT  databits = DATA_BITS, UINT  stopsbits = STOP_BITS, DWORD dwCommEvents = EV_RXCHAR);
 
 	/** 串口初始化函数
 	*

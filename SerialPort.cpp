@@ -28,11 +28,9 @@ bool CSerialPort::InitPort(UINT portNo /*= 1*/, UINT baud /*= CBR_115200*/, char
 	UINT databits /*= 8*/, UINT stopsbits /*= 1*/, DWORD dwCommEvents /*= EV_RXCHAR*/)
 {
 
-	UINT m_baud = 460800;
-
 	/** 临时变量,将制定参数转化为字符串形式,以构造DCB结构 */
 	char szDCBparam[50];
-	sprintf_s(szDCBparam, "baud=%d parity=%c data=%d stop=%d", m_baud, parity, databits, stopsbits);
+	sprintf_s(szDCBparam, "baud=%d parity=%c data=%d stop=%d", baud, parity, databits, stopsbits);
 
 	/** 打开指定串口,该函数内部已经有临界区保护,上面请不要加保护 */
 	if (!openPort(portNo))
