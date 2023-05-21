@@ -1,60 +1,61 @@
-// /*udpæ§åˆ¶ç±»*/
+/*udp¿ØÖÆÀà*/
 
-// #include <stdio.h>
-// #include <Ws2tcpip.h>
-// #include <winsock2.h>
-// #include <process.h>
-// #include <iostream>
+#include <stdio.h>
+#include <Ws2tcpip.h>
+#include <winsock2.h>
+#include <process.h>
+#include <iostream>
 
-// #include "Command.h"
-// #include "Util.h" 
+#include "Command.h"
+#include "Util.h" 
 
-// //é¢„å¤„ç†æŒ‡ä»¤,è¿™é‡Œçš„ä½œç”¨æ˜¯æŒ‡å®šé“¾æ¥åº“
-// #pragma comment(lib,"ws2_32.lib")
+//Ô¤´¦ÀíÖ¸Áî,ÕâÀïµÄ×÷ÓÃÊÇÖ¸¶¨Á´½Ó¿â
+#pragma comment(lib,"ws2_32.lib")
 
-// //å‚æ•°è®¾ç½®
-// #define REMOTE_PORT 8001
-// #define LOCAL_PORT  8000
-// #define REMOTE_IP "127.0.0.1"
-// #define SENDBUFFSIZE 1024
-// #define REVBUFFSIZE 1024
-// #define SLEEP_TIME 1
+//²ÎÊıÉèÖÃ
+#define REMOTE_PORT 8001
+#define LOCAL_PORT  8000
+#define REMOTE_IP "127.0.0.1"
+#define SENDBUFFSIZE 1024
+#define REVBUFFSIZE 1024
+#define SLEEP_TIME_UDP 1
 
-// using namespace std;
 
-// //_stdcallçš„æ–¹æ³•,ç”¨äº_beginthreadexè°ƒç”¨,ä¸èƒ½æ”¾åœ¨ç±»ä¸­,å¦åˆ™å¾—å®šä¹‰æˆstaticçš„
-// UINT WINAPI RevThreadFunc(void* pParam);
-// UINT WINAPI SendThreadFunc(void* pParam);
+using namespace std;
 
-// class MyUdpClient
-// {
-// public:
-// 	MyUdpClient();
-// 	~MyUdpClient();
+class MyUdpClient
+{
+public:
+	MyUdpClient();
+	~MyUdpClient();
 
-// public:
-// 	bool OpenRevThread();
-// 	bool OpenSendThread();
-// 	bool CloseRevThread();
-// 	bool CloseSendThread();
+public:
+	bool OpenRevThread();
+	bool OpenSendThread();
+	bool CloseRevThread();
+	bool CloseSendThread();
 
-// 	void StartThreadRxTx();
-// 	int  SendPack();
+	void StartThreadTxRx();
+	int  SendPack();
 
-// 	SOCKET NetSocket;
-// 	WSADATA wsaData;					//ç”¨äºå¯åŠ¨å¥—æ¥å­—,ä¸»è¦æ˜¯è°ƒç”¨èµ·æ¥åŠ¨æ€é“¾æ¥åº“
-// 	sockaddr_in RemtAddr;
-// 	sockaddr_in LoclAddr;
-// 	int localPort = LOCAL_PORT;
-// 	int remotePort = REMOTE_PORT;
-// 	int BufLen;
-// 	int l_naddLen1;
+	//_stdcallµÄ·½·¨,ÓÃÓÚ_beginthreadexµ÷ÓÃ,²»ÄÜ·ÅÔÚÀàÖĞ,·ñÔòµÃ¶¨Òå³ÉstaticµÄ
+	static UINT WINAPI RevThreadFunc(void* pParam);
+	static UINT WINAPI SendThreadFunc(void* pParam);
 
-// 	/*çº¿ç¨‹é€€å‡ºæ ‡å¿—*/
-// 	bool sendExit;
-// 	bool revExit;
+	SOCKET NetSocket;
+	WSADATA wsaData;					//ÓÃÓÚÆô¶¯Ì×½Ó×Ö,Ö÷ÒªÊÇµ÷ÓÃÆğÀ´¶¯Ì¬Á´½Ó¿â
+	sockaddr_in RemtAddr;
+	sockaddr_in LoclAddr;
+	int localPort = LOCAL_PORT;
+	int remotePort = REMOTE_PORT;
+	int BufLen;
+	int l_naddLen1;
 
-// 	/*çº¿ç¨‹å¥æŸ„*/
-// 	volatile HANDLE sendThread;
-// 	volatile HANDLE revThread;
-// };
+	/*Ïß³ÌÍË³ö±êÖ¾*/
+	static bool sendExit;
+	static bool revExit;
+
+	/*Ïß³Ì¾ä±ú*/
+	volatile HANDLE sendThread;
+	volatile HANDLE revThread;
+};

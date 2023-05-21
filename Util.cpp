@@ -2,13 +2,13 @@
 #include <climits>
 
 //************************************
-// Method:    strToHex åå…­è¿›åˆ¶å­—ç¬¦ä¸²è½¬16è¿›åˆ¶
+// Method:    strToHex Ê®Áù½øÖÆ×Ö·û´®×ª16½øÖÆ
 // FullName:  CommUtil::strToHex
 // Access:    public 
 // Returns:   data length
 // Qualifier:
-// Parameter: char * hexStr åå…­è¿›åˆ¶å­—ç¬¦ä¸²
-// Parameter: unsigned char * outData å­˜å‚¨16è¿›åˆ¶å®¹å™¨
+// Parameter: char * hexStr Ê®Áù½øÖÆ×Ö·û´®
+// Parameter: unsigned char * outData ´æ´¢16½øÖÆÈİÆ÷
 //************************************
 int strToHex(char* hexStr, unsigned char* outData) {
     int len = strlen(hexStr);

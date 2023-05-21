@@ -1,4 +1,4 @@
-﻿/*获取系统串口列表*/
+/*��ȡϵͳ�����б�*/
 
 #include <string.h>
 #include <stdio.h>
@@ -10,11 +10,11 @@
 #include <iostream>
 #include <vector>
 
-//双字节类型转换
+//˫�ֽ�����ת��
 char* wideCharToMultiByte(wchar_t* pWCStrKey);
 
-//通过遍历查询获取串口列表COM0-255查询存在否
+//ͨ��������ѯ��ȡ�����б�COM0-255��ѯ���ڷ�
 void listComPortByQuery(std::vector<int>& list);
 
-//通过注册表获取串口列表
+//ͨ��ע�����ȡ�����б�
 std::vector<std::string> getComPortByReg();

@@ -36,6 +36,9 @@
     <ClCompile Include="TestClassA.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MyUdpClient.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SerialPort.h">
@@ -52,9 +55,6 @@
     </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="MyUdpClient.cpp">
-      <Filter>源文件</Filter>
     </ClInclude>
     <ClInclude Include="MyUdpClient.h">
       <Filter>头文件</Filter>

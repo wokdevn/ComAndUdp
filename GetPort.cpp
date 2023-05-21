@@ -1,17 +1,17 @@
-ï»¿#include "GetPort.h"
+#include "GetPort.h"
 
-//åŒå­—èŠ‚ç±»å‹è½¬æ¢æˆå¤šä¸ªå­—èŠ‚
+//Ë«×Ö½ÚÀàĞÍ×ª»»³É¶à¸ö×Ö½Ú
 char* wideCharToMultiByte(wchar_t* pWCStrKey)
 {
-    //ç¬¬ä¸€æ¬¡è°ƒç”¨ç¡®è®¤è½¬æ¢åå•å­—èŠ‚å­—ç¬¦ä¸²çš„é•¿åº¦ï¼Œç”¨äºå¼€è¾Ÿç©ºé—´
+    //µÚÒ»´Îµ÷ÓÃÈ·ÈÏ×ª»»ºóµ¥×Ö½Ú×Ö·û´®µÄ³¤¶È£¬ÓÃÓÚ¿ª±Ù¿Õ¼ä
     int pSize = WideCharToMultiByte(CP_OEMCP, 0, pWCStrKey, wcslen(pWCStrKey), NULL, 0, NULL, NULL);
     char* pCStrKey = new char[pSize + 1];
-    //ç¬¬äºŒæ¬¡è°ƒç”¨å°†åŒå­—èŠ‚å­—ç¬¦ä¸²è½¬æ¢æˆå•å­—èŠ‚å­—ç¬¦ä¸²
+    //µÚ¶ş´Îµ÷ÓÃ½«Ë«×Ö½Ú×Ö·û´®×ª»»³Éµ¥×Ö½Ú×Ö·û´®
     WideCharToMultiByte(CP_OEMCP, 0, pWCStrKey, wcslen(pWCStrKey), pCStrKey, pSize, NULL, NULL);
     pCStrKey[pSize] = '\0';
     return pCStrKey;
 
-    //å¦‚æœæƒ³è¦è½¬æ¢æˆstringï¼Œç›´æ¥èµ‹å€¼å³å¯
+    //Èç¹ûÏëÒª×ª»»³Éstring£¬Ö±½Ó¸³Öµ¼´¿É
     //string pKey = pCStrKey;
 }
 
@@ -57,7 +57,7 @@ std::vector<std::string> getComPortByReg()
     HKEY hKey;
     wchar_t portName[256], w_commName[256];
     std::vector<std::string> comName;
-    //æ‰“å¼€ä¸²å£æ³¨å†Œè¡¨å¯¹åº”çš„é”®å€¼  
+    //´ò¿ª´®¿Ú×¢²á±í¶ÔÓ¦µÄ¼üÖµ  
     if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Hardware\\DeviceMap\\SerialComm"), NULL, KEY_READ, &hKey))
     {
         int i = 0;
@@ -66,7 +66,7 @@ std::vector<std::string> getComPortByReg()
         while (TRUE)
         {
             dwLong = dwSize = sizeof(portName);
-            //æšä¸¾ä¸²å£
+            //Ã¶¾Ù´®¿Ú
             if (ERROR_NO_MORE_ITEMS == ::RegEnumValue(hKey, i, portName, &dwLong, NULL, NULL, (PUCHAR)w_commName, &dwSize))
             {
                 break;
@@ -76,13 +76,13 @@ std::vector<std::string> getComPortByReg()
             delete[] commName;
             i++;
         }
-        //å…³é—­æ³¨å†Œè¡¨
+        //¹Ø±Õ×¢²á±í
         RegCloseKey(hKey);
     }
     else
     {
-        std::cout << "æ‚¨çš„è®¡ç®—æœºçš„æ³¨å†Œè¡¨ä¸Šæ²¡æœ‰HKEY_LOCAL_MACHINE:Hardware\\DeviceMap\\SerialCommé¡¹\n";
+        std::cout << "ÄúµÄ¼ÆËã»úµÄ×¢²á±íÉÏÃ»ÓĞHKEY_LOCAL_MACHINE:Hardware\\DeviceMap\\SerialCommÏî\n";
     }
-    //è¿”å›ä¸²å£å·
+    //·µ»Ø´®¿ÚºÅ
     return comName;
 }

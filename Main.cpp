@@ -1,6 +1,14 @@
 /*main program*/
+/*
+1.change config.h Test or not and direction
+2.get the serial can be used and change config.h
+3.exe the Main
+*/
 #include <iostream>
+
+#include "MyUdpClient.h"
 #include "SerialPort.h"
+
 #include "GetPort.h"
 #include "Test.h"
 #include "Command.h"
@@ -45,14 +53,15 @@ int main()
 		mySerialPort.WriteData(data, length);
 	}*/
 
-	MyUdpClient m;
-	bool uThreadStatus = m.OpenRevThread();
-	if (!uThreadStatus) {
-		std::cout << "rev thread error\n";
-	}
-	else {
-		std::cout << "udp rev thread up\n";
-	}
+	//MyUdpClient m;
+	//bool uThreadStatus = m.OpenRevThread();
+	//if (!uThreadStatus) {
+	//	std::cout << "rev thread error\n";
+	//}
+	//else {
+	//	std::cout << "udp rev thread up\n";
+	//}
+	MyUdpClient a;
 
 	//send test
 	//for (int i = 0; i < 10; ++i) {
@@ -76,7 +85,7 @@ int main()
 	//			mySerialPort.WriteData(data, length);
 	//		}
 	//	}
-	//	printf("\nreadï¼š");
+	//	printf("\nread£º");
 	//	for (int i = 0; i < l_nReadLen; i++)
 	//	{
 	//		printf("%02x ", RevBuf[i]);

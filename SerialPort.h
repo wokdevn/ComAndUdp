@@ -1,187 +1,124 @@
-//TODO:æµ‹è¯•ä¸‹,å¤šä¸ªå®ä¾‹èƒ½å¦åˆ©ç”¨åŒä¸€ä¸ªCOMç«¯å£,å¦‚æœå¯ä»¥çš„è¯,é‚£ä»udpé‚£é‡Œè°ƒç”¨å¯èƒ½ä¼šç®€å•äº›
-#include <winsock2.h>
+//TODO:²âÊÔÏÂ,¶à¸öÊµÀıÄÜ·ñÀûÓÃÍ¬Ò»¸öCOM¶Ë¿Ú,Èç¹û¿ÉÒÔµÄ»°,ÄÇ´ÓudpÄÇÀïµ÷ÓÃ¿ÉÄÜ»á¼òµ¥Ğ©
 #include <Windows.h>
-#include <stdio.h>
-#include <Ws2tcpip.h>
-#include <process.h>
-#include <iostream>
-#include "Command.h"
-#include "Util.h" 
 
-//é¢„å¤„ç†æŒ‡ä»¤,è¿™é‡Œçš„ä½œç”¨æ˜¯æŒ‡å®šé“¾æ¥åº“
-#pragma comment(lib,"ws2_32.lib")
-
-//å‚æ•°è®¾ç½®
-#define REMOTE_PORT 8001
-#define LOCAL_PORT  8000
-#define REMOTE_IP "192.168.0.27"
-#define SENDBUFFSIZE 1024
-#define REVBUFFSIZE 1024
 #define SLEEP_TIME_SERIAL 1
-#define SLEEP_TIME_UDP 1
 
-using namespace std;
-
-class CSerialPort;
-class MyUdpClient
-{
-public:
-	MyUdpClient();
-	~MyUdpClient();
-	static CSerialPort * csp;
-
-public:
-	bool OpenRevThread();
-	bool OpenSendThread();
-	bool CloseRevThread();
-
-	bool CloseSendThread();
-	void StartThreadTxRx();
-	int SendPack();
-
-	//_stdcallçš„æ–¹æ³•,ç”¨äº_beginthreadexè°ƒç”¨,ä¸èƒ½æ”¾åœ¨ç±»ä¸­,å¦åˆ™å¾—å®šä¹‰æˆstaticçš„
-	static UINT WINAPI RevThreadFunc(void* pParam);
-	static UINT WINAPI SendThreadFunc(void* pParam);
-
-	static SOCKET NetSocket;
-	static sockaddr_in RemtAddr;
-	static sockaddr_in LoclAddr;
-	static int BufLen;
-	static int l_naddLen1;
-	WSADATA wsaData;					 //ç”¨äºå¯åŠ¨å¥—æ¥å­—,ä¸»è¦æ˜¯è°ƒç”¨èµ·æ¥åŠ¨æ€é“¾æ¥åº“
-	int localPort = LOCAL_PORT;
-	int remotePort = REMOTE_PORT;
-
-	/** çº¿ç¨‹é€€å‡ºæ ‡å¿—å˜é‡ */
-	static bool sendExit;
-	static bool revExit;
-
-	/** çº¿ç¨‹å¥æŸ„ */
-	volatile HANDLE sendThread;
-	volatile HANDLE revThread;
-};
-
-
-
-
-//TODO:æµ‹è¯•ä¸‹,å¤šä¸ªå®ä¾‹èƒ½å¦åˆ©ç”¨åŒä¸€ä¸ªCOMç«¯å£,å¦‚æœå¯ä»¥çš„è¯,é‚£ä»udpé‚£é‡Œè°ƒç”¨å¯èƒ½ä¼šç®€å•äº›
 class CSerialPort
 {
 public:
 	CSerialPort(void);
 	~CSerialPort(void);
-	static MyUdpClient* muc;
 
 public:
 
-	/** ä¸²å£ç›‘å¬çº¿ç¨‹
+	/** ´®¿Ú¼àÌıÏß³Ì
 	*
-	*  ç›‘å¬æ¥è‡ªä¸²å£çš„æ•°æ®å’Œä¿¡æ¯
-	*  @param:  void * pParam çº¿ç¨‹å‚æ•°
-	*  @return: UINT WINAPI çº¿ç¨‹è¿”å›å€¼
+	*  ¼àÌıÀ´×Ô´®¿ÚµÄÊı¾İºÍĞÅÏ¢
+	*  @param:  void * pParam Ïß³Ì²ÎÊı
+	*  @return: UINT WINAPI Ïß³Ì·µ»ØÖµ
 	*  @note:
 	*  @see:
 	*/
 	static UINT WINAPI ListenThreadFunc(void* pParam);
 
-	/** ç»ˆç«¯ç›‘å¬çº¿ç¨‹
+	/** ÖÕ¶Ë¼àÌıÏß³Ì
 	*
-	*  ç›‘å¬æ¥è‡ªç»ˆç«¯çš„æ•°æ®å’Œä¿¡æ¯
-	*  @param:  void * pParam çº¿ç¨‹å‚æ•°
-	*  @return: UINT WINAPI çº¿ç¨‹è¿”å›å€¼
+	*  ¼àÌıÀ´×ÔÖÕ¶ËµÄÊı¾İºÍĞÅÏ¢
+	*  @param:  void * pParam Ïß³Ì²ÎÊı
+	*  @return: UINT WINAPI Ïß³Ì·µ»ØÖµ
 	*  @note:
 	*  @see:
 	*/
 	static UINT WINAPI TerminalThreadFunc(void* pParam);
 
-	/** åˆå§‹åŒ–ä¸²å£å‡½æ•°
+	/** ³õÊ¼»¯´®¿Úº¯Êı
 	*
-	*  @param:  UINT portNo ä¸²å£ç¼–å·,é»˜è®¤å€¼ä¸º1,å³COM1,æ³¨æ„,å°½é‡ä¸è¦å¤§äº9
-	*  @param:  UINT baud   æ³¢ç‰¹ç‡,é»˜è®¤ä¸º115200
-	*  @param:  char parity æ˜¯å¦è¿›è¡Œå¥‡å¶æ ¡éªŒ,'Y'è¡¨ç¤ºéœ€è¦å¥‡å¶æ ¡éªŒ,'N'è¡¨ç¤ºä¸éœ€è¦å¥‡å¶æ ¡éªŒ
-	*  @param:  UINT databits æ•°æ®ä½çš„ä¸ªæ•°,é»˜è®¤å€¼ä¸º8ä¸ªæ•°æ®ä½
-	*  @param:  UINT stopsbits åœæ­¢ä½ä½¿ç”¨æ ¼å¼,é»˜è®¤å€¼ä¸º1
-	*  @param:  DWORD dwCommEvents é»˜è®¤ä¸ºEV_RXCHAR,å³åªè¦æ”¶å‘ä»»æ„ä¸€ä¸ªå­—ç¬¦,åˆ™äº§ç”Ÿä¸€ä¸ªäº‹ä»¶
-	*  @return: bool  åˆå§‹åŒ–æ˜¯å¦æˆåŠŸ
-	*  @note:   åœ¨ä½¿ç”¨å…¶ä»–æœ¬ç±»æä¾›çš„å‡½æ•°å‰,è¯·å…ˆè°ƒç”¨æœ¬å‡½æ•°è¿›è¡Œä¸²å£çš„åˆå§‹åŒ–
-	*ã€€ã€€ã€€ã€€ã€€   /næœ¬å‡½æ•°æä¾›äº†ä¸€äº›å¸¸ç”¨çš„ä¸²å£å‚æ•°è®¾ç½®,è‹¥éœ€è¦è‡ªè¡Œè®¾ç½®è¯¦ç»†çš„DCBå‚æ•°,å¯ä½¿ç”¨é‡è½½å‡½æ•°
-	*           /næœ¬ä¸²å£ç±»ææ„æ—¶ä¼šè‡ªåŠ¨å…³é—­ä¸²å£,æ— éœ€é¢å¤–æ‰§è¡Œå…³é—­ä¸²å£
+	*  @param:  UINT portNo ´®¿Ú±àºÅ,Ä¬ÈÏÖµÎª1,¼´COM1,×¢Òâ,¾¡Á¿²»Òª´óÓÚ9
+	*  @param:  UINT baud   ²¨ÌØÂÊ,Ä¬ÈÏÎª115200
+	*  @param:  char parity ÊÇ·ñ½øĞĞÆæÅ¼Ğ£Ñé,'Y'±íÊ¾ĞèÒªÆæÅ¼Ğ£Ñé,'N'±íÊ¾²»ĞèÒªÆæÅ¼Ğ£Ñé
+	*  @param:  UINT databits Êı¾İÎ»µÄ¸öÊı,Ä¬ÈÏÖµÎª8¸öÊı¾İÎ»
+	*  @param:  UINT stopsbits Í£Ö¹Î»Ê¹ÓÃ¸ñÊ½,Ä¬ÈÏÖµÎª1
+	*  @param:  DWORD dwCommEvents Ä¬ÈÏÎªEV_RXCHAR,¼´Ö»ÒªÊÕ·¢ÈÎÒâÒ»¸ö×Ö·û,Ôò²úÉúÒ»¸öÊÂ¼ş
+	*  @return: bool  ³õÊ¼»¯ÊÇ·ñ³É¹¦
+	*  @note:   ÔÚÊ¹ÓÃÆäËû±¾ÀàÌá¹©µÄº¯ÊıÇ°,ÇëÏÈµ÷ÓÃ±¾º¯Êı½øĞĞ´®¿ÚµÄ³õÊ¼»¯
+	*¡¡¡¡¡¡¡¡¡¡   /n±¾º¯ÊıÌá¹©ÁËÒ»Ğ©³£ÓÃµÄ´®¿Ú²ÎÊıÉèÖÃ,ÈôĞèÒª×ÔĞĞÉèÖÃÏêÏ¸µÄDCB²ÎÊı,¿ÉÊ¹ÓÃÖØÔØº¯Êı
+	*           /n±¾´®¿ÚÀàÎö¹¹Ê±»á×Ô¶¯¹Ø±Õ´®¿Ú,ÎŞĞè¶îÍâÖ´ĞĞ¹Ø±Õ´®¿Ú
 	*  @see:
 	*/
 	bool InitPort(UINT  portNo = 1, UINT  baud = CBR_115200, char  parity = 'N', UINT  databits = 8, UINT  stopsbits = 1, DWORD dwCommEvents = EV_RXCHAR);
 
-	/** ä¸²å£åˆå§‹åŒ–å‡½æ•°
+	/** ´®¿Ú³õÊ¼»¯º¯Êı
 	*
-	*  æœ¬å‡½æ•°æä¾›ç›´æ¥æ ¹æ®DCBå‚æ•°è®¾ç½®ä¸²å£å‚æ•°
+	*  ±¾º¯ÊıÌá¹©Ö±½Ó¸ù¾İDCB²ÎÊıÉèÖÃ´®¿Ú²ÎÊı
 	*  @param:  UINT portNo
 	*  @param:  const LPDCB & plDCB
-	*  @return: bool  åˆå§‹åŒ–æ˜¯å¦æˆåŠŸ
-	*  @note:   æœ¬å‡½æ•°æä¾›ç”¨æˆ·è‡ªå®šä¹‰åœ°ä¸²å£åˆå§‹åŒ–å‚æ•°
+	*  @return: bool  ³õÊ¼»¯ÊÇ·ñ³É¹¦
+	*  @note:   ±¾º¯ÊıÌá¹©ÓÃ»§×Ô¶¨ÒåµØ´®¿Ú³õÊ¼»¯²ÎÊı
 	*  @see:
 	*/
 	bool InitPort(UINT  portNo, const LPDCB& plDCB);
 
-	/** å¼€å¯ç›‘å¬çº¿ç¨‹
+	/** ¿ªÆô¼àÌıÏß³Ì
 	*
-	*  æœ¬ç›‘å¬çº¿ç¨‹å®Œæˆå¯¹ä¸²å£æ•°æ®çš„ç›‘å¬,å¹¶å°†æ¥æ”¶åˆ°çš„æ•°æ®æ‰“å°åˆ°å±å¹•è¾“å‡º
-	*  @return: bool  æ“ä½œæ˜¯å¦æˆåŠŸ
-	*  @note:   å½“çº¿ç¨‹å·²ç»å¤„äºå¼€å¯çŠ¶æ€æ—¶,è¿”å›flase
+	*  ±¾¼àÌıÏß³ÌÍê³É¶Ô´®¿ÚÊı¾İµÄ¼àÌı,²¢½«½ÓÊÕµ½µÄÊı¾İ´òÓ¡µ½ÆÁÄ»Êä³ö
+	*  @return: bool  ²Ù×÷ÊÇ·ñ³É¹¦
+	*  @note:   µ±Ïß³ÌÒÑ¾­´¦ÓÚ¿ªÆô×´Ì¬Ê±,·µ»Øflase
 	*  @see:
 	*/
 	bool OpenListenThread();
 
-	/** å…³é—­ç›‘å¬çº¿ç¨‹
+	/** ¹Ø±Õ¼àÌıÏß³Ì
 	*
 	*
-	*  @return: bool  æ“ä½œæ˜¯å¦æˆåŠŸ
-	*  @note:   è°ƒç”¨æœ¬å‡½æ•°å,ç›‘å¬ä¸²å£çš„çº¿ç¨‹å°†ä¼šè¢«å…³é—­
+	*  @return: bool  ²Ù×÷ÊÇ·ñ³É¹¦
+	*  @note:   µ÷ÓÃ±¾º¯Êıºó,¼àÌı´®¿ÚµÄÏß³Ì½«»á±»¹Ø±Õ
 	*  @see:
 	*/
 	bool CloseListenTread();
 
-	/** å‘ä¸²å£å†™æ•°æ®
+	/** Ïò´®¿ÚĞ´Êı¾İ
 	*
-	*  å°†ç¼“å†²åŒºä¸­çš„æ•°æ®å†™å…¥åˆ°ä¸²å£
-	*  @param:  unsigned char * pData æŒ‡å‘éœ€è¦å†™å…¥ä¸²å£çš„æ•°æ®ç¼“å†²åŒº
-	*  @param:  unsigned int length éœ€è¦å†™å…¥çš„æ•°æ®é•¿åº¦
-	*  @return: bool  æ“ä½œæ˜¯å¦æˆåŠŸ
-	*  @note:   lengthä¸è¦å¤§äºpDataæ‰€æŒ‡å‘ç¼“å†²åŒºçš„å¤§å°
+	*  ½«»º³åÇøÖĞµÄÊı¾İĞ´Èëµ½´®¿Ú
+	*  @param:  unsigned char * pData Ö¸ÏòĞèÒªĞ´Èë´®¿ÚµÄÊı¾İ»º³åÇø
+	*  @param:  unsigned int length ĞèÒªĞ´ÈëµÄÊı¾İ³¤¶È
+	*  @return: bool  ²Ù×÷ÊÇ·ñ³É¹¦
+	*  @note:   length²»Òª´óÓÚpDataËùÖ¸Ïò»º³åÇøµÄ´óĞ¡
 	*  @see:
 	*/
 	bool WriteData(unsigned char* pData, unsigned int length);
 
-	/** å¼€å¯ç»ˆç«¯è¾“å…¥ç›‘å¬çº¿ç¨‹
+	/** ¿ªÆôÖÕ¶ËÊäÈë¼àÌıÏß³Ì
 	*
-	*  æœ¬ç›‘å¬çº¿ç¨‹å®Œæˆå¯¹ç»ˆç«¯è¾“å…¥æ•°æ®çš„ç›‘å¬,å¹¶å°†æ¥æ”¶åˆ°çš„æ•°æ®ä¸ç è¡¨å¯¹åº”å¹¶å‘é€
-	*  @return: bool  æ“ä½œæ˜¯å¦æˆåŠŸ
-	*  @note:   å½“çº¿ç¨‹å·²ç»å¤„äºå¼€å¯çŠ¶æ€æ—¶,è¿”å›flase
+	*  ±¾¼àÌıÏß³ÌÍê³É¶ÔÖÕ¶ËÊäÈëÊı¾İµÄ¼àÌı,²¢½«½ÓÊÕµ½µÄÊı¾İÓëÂë±í¶ÔÓ¦²¢·¢ËÍ
+	*  @return: bool  ²Ù×÷ÊÇ·ñ³É¹¦
+	*  @note:   µ±Ïß³ÌÒÑ¾­´¦ÓÚ¿ªÆô×´Ì¬Ê±,·µ»Øflase
 	*  @see:
 	*/
 	bool OpenTerminalThread();
 
-	/** å…³é—­ç»ˆç«¯ç›‘å¬çº¿ç¨‹
+	/** ¹Ø±ÕÖÕ¶Ë¼àÌıÏß³Ì
 	*
 	*
-	*  @return: bool  æ“ä½œæ˜¯å¦æˆåŠŸ
-	*  @note:   è°ƒç”¨æœ¬å‡½æ•°å,ç›‘å¬ç»ˆç«¯çš„çº¿ç¨‹å°†ä¼šè¢«å…³é—­
+	*  @return: bool  ²Ù×÷ÊÇ·ñ³É¹¦
+	*  @note:   µ÷ÓÃ±¾º¯Êıºó,¼àÌıÖÕ¶ËµÄÏß³Ì½«»á±»¹Ø±Õ
 	*  @see:
 	*/
 	bool CloseTerminalThread();
 
-	/** è·å–ä¸²å£ç¼“å†²åŒºä¸­çš„å­—èŠ‚æ•°
+	/** »ñÈ¡´®¿Ú»º³åÇøÖĞµÄ×Ö½ÚÊı
 	*
 	*
-	*  @return: UINT  æ“ä½œæ˜¯å¦æˆåŠŸ
-	*  @note:   å½“ä¸²å£ç¼“å†²åŒºä¸­æ— æ•°æ®æ—¶,è¿”å›0
+	*  @return: UINT  ²Ù×÷ÊÇ·ñ³É¹¦
+	*  @note:   µ±´®¿Ú»º³åÇøÖĞÎŞÊı¾İÊ±,·µ»Ø0
 	*  @see:
 	*/
 	UINT GetBytesInCOM();
 
-	/** è¯»å–ä¸²å£æ¥æ”¶ç¼“å†²åŒºä¸­ä¸€ä¸ªå­—èŠ‚çš„æ•°æ®
+	/** ¶ÁÈ¡´®¿Ú½ÓÊÕ»º³åÇøÖĞÒ»¸ö×Ö½ÚµÄÊı¾İ
 	*
 	*
-	*  @param:  char & cRecved å­˜æ”¾è¯»å–æ•°æ®çš„å­—ç¬¦å˜é‡
-	*  @return: bool  è¯»å–æ˜¯å¦æˆåŠŸ
+	*  @param:  char & cRecved ´æ·Å¶ÁÈ¡Êı¾İµÄ×Ö·û±äÁ¿
+	*  @return: bool  ¶ÁÈ¡ÊÇ·ñ³É¹¦
 	*  @note:
 	*  @see:
 	*/
@@ -189,40 +126,40 @@ public:
 
 private:
 
-	/** æ‰“å¼€ä¸²å£
+	/** ´ò¿ª´®¿Ú
 	*
 	*
-	*  @param:  UINT portNo ä¸²å£è®¾å¤‡å·
-	*  @return: bool  æ‰“å¼€æ˜¯å¦æˆåŠŸ
+	*  @param:  UINT portNo ´®¿ÚÉè±¸ºÅ
+	*  @return: bool  ´ò¿ªÊÇ·ñ³É¹¦
 	*  @note:
 	*  @see:
 	*/
 	bool openPort(UINT  portNo);
 
-	/** å…³é—­ä¸²å£
+	/** ¹Ø±Õ´®¿Ú
 	*
 	*
-	*  @return: void  æ“ä½œæ˜¯å¦æˆåŠŸ
+	*  @return: void  ²Ù×÷ÊÇ·ñ³É¹¦
 	*  @note:
 	*  @see:
 	*/
 	void ClosePort();
 
 public:
-	/** çº¿ç¨‹é€€å‡ºæ ‡å¿—å˜é‡ */
+	/** Ïß³ÌÍË³ö±êÖ¾±äÁ¿ */
 	static bool s_bExit;
 	static bool terminalExit;
 
 private:
 
-	/** ä¸²å£å¥æŸ„ */
+	/** ´®¿Ú¾ä±ú */
 	HANDLE  m_hComm;
 
-	/** çº¿ç¨‹å¥æŸ„ */
+	/** Ïß³Ì¾ä±ú */
 	volatile HANDLE    m_hListenThread;
 	volatile HANDLE    m_TerminalThread;
 
-	/** åŒæ­¥äº’æ–¥,ä¸´ç•ŒåŒºä¿æŠ¤ */
-	CRITICAL_SECTION   m_csCommunicationSync;        //!< äº’æ–¥æ“ä½œä¸²å£
+	/** Í¬²½»¥³â,ÁÙ½çÇø±£»¤ */
+	CRITICAL_SECTION   m_csCommunicationSync;        //!< »¥³â²Ù×÷´®¿Ú
 
 };

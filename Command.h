@@ -6,7 +6,7 @@
  * @Description: 
  */
 
-/*å¤©çº¿æŽ§åˆ¶ç è¡¨,åœ¨Config.hé‡Œé¢æŽ§åˆ¶æ˜¯æ”¶ç«¯è¿˜æ˜¯å‘ç«¯,ä»¥åŠTEST*/
+/*ÌìÏß¿ØÖÆÂë±í,ÔÚConfig.hÀïÃæ¿ØÖÆÊÇÊÕ¶Ë»¹ÊÇ·¢¶Ë,ÒÔ¼°TEST*/
 
 #include "Config.h"
 
