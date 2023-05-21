@@ -141,11 +141,14 @@
     <ClInclude Include="GetPort.h" />
     <ClInclude Include="MyUdpClient.h" />
     <ClInclude Include="SerialPort.h" />
-    <ClInclude Include="MyUdpClient.cpp" />
+    <ClCompile Include="MyUdpClient.cpp" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Test.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

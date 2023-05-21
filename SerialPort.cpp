@@ -260,6 +260,8 @@ UINT WINAPI CSerialPort::ListenThreadFunc(void* pParam)
 
 		/*MyUdpClient m;
 		m.SendPack();*/
+
+		//这里我的实现方式是新建一个对象,还没测试,不过在udp的那个里面我是把主线程的mSerialPort对象赋值给udp对象了,可以正常运行
 		MyUdpClient* mm = new MyUdpClient();
 		mm->SendPack();
 

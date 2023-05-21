@@ -1,4 +1,3 @@
-//TODO:测试下,多个实例能否利用同一个COM端口,如果可以的话,那从udp那里调用可能会简单些
 #include <winsock2.h>
 #include <Windows.h>
 #include <stdio.h>
@@ -22,7 +21,9 @@
 
 using namespace std;
 
+//先声明,以便在udp通信类中用串口做局部变量
 class CSerialPort;
+//Udp通信类
 class MyUdpClient
 {
 public:
@@ -63,8 +64,7 @@ public:
 
 
 
-
-//TODO:测试下,多个实例能否利用同一个COM端口,如果可以的话,那从udp那里调用可能会简单些
+//串口通信类
 class CSerialPort
 {
 public:

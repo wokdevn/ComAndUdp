@@ -14,6 +14,7 @@ int main()
 
 	CSerialPort mySerialPort;
 
+	//Serial port init
 	if (!mySerialPort.InitPort(COM_PORT))
 	{
 		std::cout << "initPort fail !!!!!!!!!!!!!!!\n\n" << std::endl;
@@ -23,6 +24,7 @@ int main()
 		std::cout << "initPort success !\n\n" << std::endl;
 	}
 
+	//Serial port listen
 	if (!mySerialPort.OpenListenThread())
 	{
 		std::cout << "OpenListenThread fail !\n\n" << std::endl;
@@ -32,6 +34,7 @@ int main()
 		std::cout << "OpenListenThread success !\n\n" << std::endl;
 	}
 
+	//Terminal read
 	if (!mySerialPort.OpenTerminalThread()) {
 		std::cout << "Terminal thread fail \n\n";
 	}
@@ -46,12 +49,12 @@ int main()
 	}*/
 
 	MyUdpClient m;
-	bool uThreadStatus = m.OpenRevThread();
-	if (!uThreadStatus) {
-		std::cout << "rev thread error\n";
+	m.csp = &mySerialPort;
+	if (!m.OpenRevThread()) {
+		std::cout << "Udp rev thread error\n";
 	}
 	else {
-		std::cout << "udp rev thread up\n";
+		std::cout << "Udp rev thread up\n";
 	}
 
 	//send test
@@ -61,6 +64,7 @@ int main()
 	//	Sleep(1000);
 	//}
 
+	////Udp listen in main thread
 	//while (1) {
 	//	char RevBuf[REVBUFFSIZE];
 	//	int l_nReadLen = recvfrom(m.SendSocket, RevBuf, m.BufLen, 0, (struct sockaddr*)&(m.SenderAddr), &(m.l_naddLen1));
@@ -84,6 +88,9 @@ int main()
 
 	//	Sleep(1);
 	//}
+
+	//In case exit
+	while (1) {}
 
 	return 0;
 }

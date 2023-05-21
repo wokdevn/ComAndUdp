@@ -1,16 +1,16 @@
 #include "SerialPort.h"
 
 CSerialPort* MyUdpClient::csp = NULL;
-/** çº¿ç¨‹é€€å‡ºæ ‡å¿— */
+/** Ïß³ÌÍË³ö±êÖ¾ */
 bool MyUdpClient::sendExit = false;
 bool MyUdpClient::revExit = false;
-static SOCKET NetSocket = 0;
-static sockaddr_in RemtAddr;
-static sockaddr_in LoclAddr;
-static int BufLen;
-static int l_naddLen1;
+SOCKET		MyUdpClient::NetSocket = 0;
+sockaddr_in MyUdpClient::RemtAddr;
+sockaddr_in MyUdpClient::LoclAddr;
+int			MyUdpClient::BufLen;
+int			MyUdpClient::l_naddLen1;
 
-//æ„é€ å‡½æ•°ä¸­ä¸»è¦è¿›è¡Œudpsocketçš„åˆå§‹åŒ–æ“ä½œ
+//¹¹Ôìº¯ÊıÖĞÖ÷Òª½øĞĞudpsocketµÄ³õÊ¼»¯²Ù×÷
 MyUdpClient::MyUdpClient() {
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
@@ -21,12 +21,12 @@ MyUdpClient::MyUdpClient() {
 
 	NetSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-	//è®¾ç½®è¿œç«¯ç«¯å£
+	//ÉèÖÃÔ¶¶Ë¶Ë¿Ú
 	RemtAddr.sin_family = AF_INET;
 	RemtAddr.sin_port = htons(remotePort);
 	inet_pton(AF_INET, REMOTE_IP, &RemtAddr.sin_addr);
 
-	//è®¾ç½®æœ¬åœ°ç«¯å£
+	//ÉèÖÃ±¾µØ¶Ë¿Ú
 	LoclAddr.sin_family = AF_INET;
 	LoclAddr.sin_port = htons(localPort);
 	LoclAddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -98,16 +98,16 @@ UINT WINAPI MyUdpClient::RevThreadFunc(void* pParam) {
 
 bool MyUdpClient::OpenSendThread()
 {
-	/** æ£€æµ‹çº¿ç¨‹æ˜¯å¦å·²ç»å¼€å¯äº† */
+	/** ¼ì²âÏß³ÌÊÇ·ñÒÑ¾­¿ªÆôÁË */
 	if (sendThread != INVALID_HANDLE_VALUE)
 	{
-		/** çº¿ç¨‹å·²ç»å¼€å¯ */
+		/** Ïß³ÌÒÑ¾­¿ªÆô */
 		std::cout << "Send thread already open\n\n";
 		return false;
 	}
 
 	sendExit = false;
-	/** çº¿ç¨‹ID */
+	/** Ïß³ÌID */
 	UINT threadId;
 
 	sendThread = (HANDLE)_beginthreadex(NULL, 0, SendThreadFunc, this, 0, &threadId);
@@ -115,7 +115,7 @@ bool MyUdpClient::OpenSendThread()
 	{
 		return false;
 	}
-	/** è®¾ç½®çº¿ç¨‹çš„ä¼˜å…ˆçº§,é«˜äºæ™®é€šçº¿ç¨‹ */
+	/** ÉèÖÃÏß³ÌµÄÓÅÏÈ¼¶,¸ßÓÚÆÕÍ¨Ïß³Ì */
 	if (!SetThreadPriority(sendThread, THREAD_PRIORITY_ABOVE_NORMAL))
 	{
 		return false;
@@ -134,7 +134,7 @@ UINT WINAPI MyUdpClient::SendThreadFunc(void* pParam) {
 		int l_nLen = sendto(mUdpClient->NetSocket, SendBuf, strlen(SendBuf), 0, (SOCKADDR*)&(mUdpClient->RemtAddr), sizeof(mUdpClient->RemtAddr));
 		if (l_nLen < 0)
 		{
-			perror("å‘é€å¤±è´¥");
+			perror("·¢ËÍÊ§°Ü");
 		}
 
 		printf("\nSend:");
@@ -153,13 +153,13 @@ UINT WINAPI MyUdpClient::SendThreadFunc(void* pParam) {
 bool MyUdpClient::CloseRevThread() {
 	if (revThread != INVALID_HANDLE_VALUE)
 	{
-		/** é€šçŸ¥çº¿ç¨‹é€€å‡º */
+		/** Í¨ÖªÏß³ÌÍË³ö */
 		revExit = true;
 
-		/** ç­‰å¾…çº¿ç¨‹é€€å‡º */
+		/** µÈ´ıÏß³ÌÍË³ö */
 		Sleep(10);
 
-		/** ç½®çº¿ç¨‹å¥æŸ„æ— æ•ˆ */
+		/** ÖÃÏß³Ì¾ä±úÎŞĞ§ */
 		CloseHandle(revThread);
 		revThread = INVALID_HANDLE_VALUE;
 	}
@@ -169,13 +169,13 @@ bool MyUdpClient::CloseRevThread() {
 bool MyUdpClient::CloseSendThread() {
 	if (sendThread != INVALID_HANDLE_VALUE)
 	{
-		/** é€šçŸ¥çº¿ç¨‹é€€å‡º */
+		/** Í¨ÖªÏß³ÌÍË³ö */
 		sendExit = true;
 
-		/** ç­‰å¾…çº¿ç¨‹é€€å‡º */
+		/** µÈ´ıÏß³ÌÍË³ö */
 		Sleep(10);
 
-		/** ç½®çº¿ç¨‹å¥æŸ„æ— æ•ˆ */
+		/** ÖÃÏß³Ì¾ä±úÎŞĞ§ */
 		CloseHandle(sendThread);
 		sendThread = INVALID_HANDLE_VALUE;
 	}
@@ -207,7 +207,7 @@ int MyUdpClient::SendPack() {
 	int l_nLen = sendto(NetSocket, SendBuf, strlen(SendBuf), 0, (SOCKADDR*)&RemtAddr, sizeof(RemtAddr));
 	if (l_nLen < 0)
 	{
-		perror("å‘é€å¤±è´¥");
+		perror("·¢ËÍÊ§°Ü");
 	}
 
 	printf("\nSend:");
