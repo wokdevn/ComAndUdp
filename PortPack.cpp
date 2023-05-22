@@ -50,20 +50,26 @@ UINT WINAPI PortPack::udpRevThreadFunc(void* pParam) {
 
 	while (!portPack->udpRevExit) {
 		char RevBuf[REVBUFFSIZE];
-		int l_nReadLen = recvfrom(portPack->p_UdpClient.NetSocket, RevBuf,
-			portPack->p_UdpClient.BufLen, 0,
+		int l_nReadLen = recvfrom(portPack->p_UdpClient.NetSocket, 
+			RevBuf,
+			portPack->p_UdpClient.BufLen, 
+			0,
 			(struct sockaddr*)&(portPack->p_UdpClient.LoclAddr),
 			&(portPack->p_UdpClient.l_naddLen1));
 		if (l_nReadLen) {
 			printf("recved\n");
 
 			unsigned char data[100];
-			int length = strToHex((char*)N_DIR, data);
+			int length = strToHex((char*)TEST_NEW_COMMAND, data);
 			for (int i = 0; i < 1; ++i) {
 				//mUdpClient->csp->WriteData(data, length);
 				portPack->p_Serialport.WriteData(data, length);
 			}
 		}
+
+		//test use
+		//portPack->p_UdpClient.SendPack();
+
 		printf("\nread:");
 		for (int i = 0; i < l_nReadLen; i++)
 		{
@@ -116,6 +122,7 @@ UINT WINAPI PortPack::serialRevThreadFunc(void* pParam) {
 		m.SendPack();*/
 		/*MyUdpClient* mm = new MyUdpClient();
 		mm->SendPack();*/
+		printf("serial reved \n");
 		portPack->p_UdpClient.SendPack();
 
 		/** 读取输入缓冲区中的数据并输出显示 */
@@ -129,12 +136,13 @@ UINT WINAPI PortPack::serialRevThreadFunc(void* pParam) {
 				continue;
 			}
 		} while (--BytesInQue);
+		printf("||||end>>>>>>>>\n");
 	}
 
 	return 0;
 }
 
-bool PortPack::CloseTwoRvThreads(){
+bool PortPack::CloseTwoRvThreads() {
 	if (serialRThread != INVALID_HANDLE_VALUE)
 	{
 		/** 通知线程退出 */
@@ -157,7 +165,7 @@ bool PortPack::CloseTwoRvThreads(){
 	return true;
 }
 
-bool PortPack::OpenTwoRvThreads(){
+bool PortPack::OpenTwoRvThreads() {
 	bool flag = true;
 	if (openUdpRvThread()) {
 		printf("udp listening\n");
@@ -166,7 +174,7 @@ bool PortPack::OpenTwoRvThreads(){
 		printf("udp thread open failed\n");
 		flag = false;
 	}
-	
+
 	if (openSerialRvThread()) {
 		printf("serial listening\n");
 	}

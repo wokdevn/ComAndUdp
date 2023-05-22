@@ -1,4 +1,4 @@
 /*œµÕ≥≈‰÷√*/
-#define TX
-#define COM_PORT 7
-#define BAUD_RATE 460800
+#define TEST
+#define COM_PORT 10
+#define BAUD_RATE 115200

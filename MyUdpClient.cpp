@@ -73,7 +73,7 @@ UINT WINAPI MyUdpClient::RevThreadFunc(void* pParam) {
 			printf("recved\n");
 
 			unsigned char data[100];
-			int length = strToHex((char*)N_DIR, data);
+			int length = strToHex((char*)TEST_NEW_COMMAND, data);
 			for (int i = 0; i < 1; ++i) {
 				//mUdpClient->csp->WriteData(data, length);
 			}

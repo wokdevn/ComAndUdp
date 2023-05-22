@@ -143,7 +143,11 @@ bool CSerialPort::openPort(UINT portNo)
 
 	/** 把串口的编号转换为设备名 */
 	char szPort[50];
-	sprintf_s(szPort, "COM%d", portNo);
+	//大于10要改
+	if (portNo < 10)
+		sprintf_s(szPort, "COM%d", portNo);
+	else
+		sprintf_s(szPort, "\\\\.\\COM%d", portNo);
 
 	/** 打开指定的串口 */
 	m_hComm = CreateFileA(szPort,  /** 设备名,COM1,COM2等 */

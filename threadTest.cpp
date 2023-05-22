@@ -30,7 +30,7 @@ void print_class(person p)
 
 int nomain()
 {
-
+    printf("%02x ", 1);
     std::cout << "Ö÷Ïß³Ì: " << std::this_thread::get_id() << endl;
 
     int num = 1;

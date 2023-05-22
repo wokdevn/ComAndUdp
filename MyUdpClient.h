@@ -15,7 +15,7 @@
 //≤Œ ˝…Ë÷√
 #define REMOTE_PORT 8001
 #define LOCAL_PORT  8000
-#define REMOTE_IP "127.0.0.1"
+#define REMOTE_IP "192.168.0.27"
 #define SENDBUFFSIZE 1024
 #define REVBUFFSIZE 1024
 #define SLEEP_TIME_UDP 1
