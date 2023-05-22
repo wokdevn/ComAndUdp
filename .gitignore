@@ -1,7 +1,2 @@
-*
-!.gitignore
-!*.cpp
-!*.h
-!*.txt
-comport/x64/*
-!comport/*
+x64/
+.vs/

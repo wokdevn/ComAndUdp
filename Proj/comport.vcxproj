@@ -18,6 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Src\Command.h" />
+    <ClInclude Include="..\Src\Config.h" />
+    <ClInclude Include="..\Src\GetPort.h" />
+    <ClInclude Include="..\Src\MyUdpClient.h" />
+    <ClInclude Include="..\Src\PortPack.h" />
+    <ClInclude Include="..\Src\SerialPort.h" />
+    <ClInclude Include="..\Src\Test.h" />
+    <ClInclude Include="..\Src\Util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Src\GetPort.cpp" />
+    <ClCompile Include="..\Src\Main.cpp" />
+    <ClCompile Include="..\Src\MyUdpClient.cpp" />
+    <ClCompile Include="..\Src\PortPack.cpp" />
+    <ClCompile Include="..\Src\SerialPort.cpp" />
+    <ClCompile Include="..\Src\Test.cpp" />
+    <ClCompile Include="..\Src\TestClassA.cpp" />
+    <ClCompile Include="..\Src\threadTest.cpp" />
+    <ClCompile Include="..\Src\UdpTest.cpp" />
+    <ClCompile Include="..\Src\Util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.gitignore" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -126,33 +154,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="GetPort.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="PortPack.cpp" />
-    <ClCompile Include="SerialPort.cpp" />
-    <ClCompile Include="Test.cpp" />
-    <ClCompile Include="TestClassA.cpp" />
-    <ClCompile Include="threadTest.cpp" />
-    <ClCompile Include="UdpTest.cpp" />
-    <ClCompile Include="Util.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Command.h" />
-    <ClInclude Include="Config.h" />
-    <ClInclude Include="GetPort.h" />
-    <ClInclude Include="MyUdpClient.h" />
-    <ClInclude Include="PortPack.h" />
-    <ClInclude Include="SerialPort.h" />
-    <ClCompile Include="MyUdpClient.cpp" />
-    <ClInclude Include="Util.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Test.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="TODO.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
