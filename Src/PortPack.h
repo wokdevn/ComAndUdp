@@ -32,18 +32,18 @@ public:
 	static UINT WINAPI serialRevRxThreadFunc(void* pParam);
 
 
-	/*Ïß³ÌÍË³ö±êÖ¾*/
+	/*ï¿½ß³ï¿½ï¿½Ë³ï¿½ï¿½ï¿½Ö¾*/
 	static bool udpRevExit;
 	static bool serialTxRevExit;
 	static bool serialRxRevExit;
 
-	/*Ïß³Ì¾ä±ú*/
+	/*ï¿½ß³Ì¾ï¿½ï¿½*/
 	volatile HANDLE udpRThread;
 	volatile HANDLE serialTxRThread;
 	volatile HANDLE serialRxRThread;
 
 	int rvflag;
-	/** Í¬²½»¥³â,ÁÙ½çÇø±£»¤ */
-	CRITICAL_SECTION   portPackCS;        //!< »¥³â²Ù×÷rvflag
+	/** Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½Ù½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+	CRITICAL_SECTION   portPackCS;        //!< ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rvflag
 	int sendUdp(int sig);
 };

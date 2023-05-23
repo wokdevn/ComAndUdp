@@ -143,7 +143,7 @@ UINT WINAPI PortPack::serialRevTxThreadFunc(void* pParam) {
 
 	while (!portPack->serialTxRevExit) {
 		UINT BytesInQue = portPack->p_SerialportTx.GetBytesInCOM();
-		/** Èç¹û´®¿ÚÊäÈë»º³åÇøÖÐÎÞÊý¾Ý,ÔòÐÝÏ¢Ò»»áÔÙ²éÑ¯ */
+		/** ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë»ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½Ï¢Ò»ï¿½ï¿½ï¿½Ù²ï¿½Ñ¯ */
 		if (BytesInQue == 0)
 		{
 			Sleep(SLEEP_TIME_SERIAL);
@@ -158,7 +158,7 @@ UINT WINAPI PortPack::serialRevTxThreadFunc(void* pParam) {
 
 		portPack->sendUdp(SERIAL_TX_SIG);
 
-		/** ¶ÁÈ¡ÊäÈë»º³åÇøÖÐµÄÊý¾Ý²¢Êä³öÏÔÊ¾ */
+		/** ï¿½ï¿½È¡ï¿½ï¿½ï¿½ë»ºï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½Ý²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ */
 		char cRecved = 0x00;
 		do
 		{
@@ -180,7 +180,7 @@ UINT WINAPI PortPack::serialRevRxThreadFunc(void* pParam) {
 
 	while (!portPack->serialRxRevExit) {
 		UINT BytesInQue = portPack->p_SerialportRx.GetBytesInCOM();
-		/** Èç¹û´®¿ÚÊäÈë»º³åÇøÖÐÎÞÊý¾Ý,ÔòÐÝÏ¢Ò»»áÔÙ²éÑ¯ */
+		/** ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë»ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½Ï¢Ò»ï¿½ï¿½ï¿½Ù²ï¿½Ñ¯ */
 		if (BytesInQue == 0)
 		{
 			Sleep(SLEEP_TIME_SERIAL);
@@ -195,7 +195,7 @@ UINT WINAPI PortPack::serialRevRxThreadFunc(void* pParam) {
 
 		portPack->sendUdp(SERIAL_RX_SIG);
 
-		/** ¶ÁÈ¡ÊäÈë»º³åÇøÖÐµÄÊý¾Ý²¢Êä³öÏÔÊ¾ */
+		/** ï¿½ï¿½È¡ï¿½ï¿½ï¿½ë»ºï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½Ý²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ */
 		char cRecved = 0x00;
 		do
 		{
@@ -215,13 +215,13 @@ UINT WINAPI PortPack::serialRevRxThreadFunc(void* pParam) {
 bool PortPack::CloseThreeRvThreads() {
 	if (serialTxRThread != INVALID_HANDLE_VALUE)
 	{
-		/** Í¨ÖªÏß³ÌÍË³ö */
+		/** Í¨Öªï¿½ß³ï¿½ï¿½Ë³ï¿½ */
 		serialTxRevExit = true;
 	}
 
 	if (serialRxRThread != INVALID_HANDLE_VALUE)
 	{
-		/** Í¨ÖªÏß³ÌÍË³ö */
+		/** Í¨Öªï¿½ß³ï¿½ï¿½Ë³ï¿½ */
 		serialRxRevExit = true;
 	}
 
@@ -229,10 +229,10 @@ bool PortPack::CloseThreeRvThreads() {
 		udpRevExit = true;
 	}
 
-	/** µÈ´ýÏß³ÌÍË³ö */
+	/** ï¿½È´ï¿½ï¿½ß³ï¿½ï¿½Ë³ï¿½ */
 	Sleep(10);
 
-	/** ÖÃÏß³Ì¾ä±úÎÞÐ§ */
+	/** ï¿½ï¿½ï¿½ß³Ì¾ï¿½ï¿½ï¿½ï¿½Ð§ */
 	CloseHandle(serialTxRThread);
 	serialTxRThread = INVALID_HANDLE_VALUE;
 
