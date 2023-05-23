@@ -29,12 +29,14 @@ PortPack::PortPack() {
 		std::cout << "initPort rx success !\n\n" << std::endl;
 	}
 
-	InitializeCriticalSection(&portPackCS);
+	InitializeCriticalSection(&portPackCSUdp);
+	InitializeCriticalSection(&portPackCSPrint);
 }
 
 PortPack::~PortPack() {
 	CloseThreeRvThreads();
-	DeleteCriticalSection(&portPackCS);
+	DeleteCriticalSection(&portPackCSUdp);
+	DeleteCriticalSection(&portPackCSPrint);
 }
 
 bool PortPack::openUdpRvThread() {
@@ -84,11 +86,12 @@ UINT WINAPI PortPack::udpRevThreadFunc(void* pParam) {
 			portPack->p_SerialportRx.WriteData(rxdata, rxlength);
 		}
 
-		printf("\nread:");
+		printf("\nUdp recv:");
 		for (int i = 0; i < l_nReadLen; i++)
 		{
 			printf("%02x ", RevBuf[i]);
 		}
+		printf("\n");
 
 		Sleep(SLEEP_TIME_UDP);
 	}
@@ -158,7 +161,7 @@ UINT WINAPI PortPack::serialRevTxThreadFunc(void* pParam) {
 
 		portPack->sendUdp(SERIAL_TX_SIG);
 
-		EnterCriticalSection(&(portPack->portPackCS));
+		EnterCriticalSection(&(portPack->portPackCSPrint));
 		printf("Tx serial recved>>>>>>>>>>>>> \n");
 		
 
@@ -174,7 +177,7 @@ UINT WINAPI PortPack::serialRevTxThreadFunc(void* pParam) {
 			}
 		} while (--BytesInQue);
 		printf("||||end tttx>>>>>>>>\n");
-		LeaveCriticalSection(&(portPack->portPackCS));
+		LeaveCriticalSection(&(portPack->portPackCSPrint));
 	}
 
 	return 0;
@@ -199,7 +202,7 @@ UINT WINAPI PortPack::serialRevRxThreadFunc(void* pParam) {
 		
 		portPack->sendUdp(SERIAL_RX_SIG);
 
-		EnterCriticalSection(&(portPack->portPackCS));
+		EnterCriticalSection(&(portPack->portPackCSPrint));
 		printf("rx serial recved>>>>>>>>>>>>> \n");
 		/** ��ȡ���뻺�����е����ݲ������ʾ */
 		char cRecved = 0x00;
@@ -213,9 +216,8 @@ UINT WINAPI PortPack::serialRevRxThreadFunc(void* pParam) {
 			}
 		} while (--BytesInQue);
 		printf("||||end RRRx>>>>>>>>\n");
-		LeaveCriticalSection(&(portPack->portPackCS));
-
-		
+		LeaveCriticalSection(&(portPack->portPackCSPrint));
+	
 	}
 
 	return 0;
@@ -265,7 +267,7 @@ bool PortPack::OpenThreeRvThreads() {
 	}
 
 	if (openTwoSerialRvThread()) {
-		printf("serials listening\n");
+		printf("Two serials listening\n");
 	}
 	else {
 		printf("serial thread open failed\n");
@@ -276,13 +278,13 @@ bool PortPack::OpenThreeRvThreads() {
 }
 
 int PortPack::sendUdp(int sig) {
-	EnterCriticalSection(&portPackCS);
+	EnterCriticalSection(&portPackCSUdp);
 
 	rvflag += sig;
 	if (!rvflag) {
 		p_UdpClient.SendPack();
 	}
-	LeaveCriticalSection(&portPackCS);
+	LeaveCriticalSection(&portPackCSUdp);
 
 	return 0;
 }

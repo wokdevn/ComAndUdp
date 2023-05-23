@@ -7,7 +7,7 @@
 #define SERIAL_TX_FUNC 1
 #define SERIAL_RX_FUNC 2
 
-class PortPack{
+class PortPack {
 public:
 	MyUdpClient p_UdpClient;
 	CSerialPort p_SerialportTx;
@@ -44,6 +44,7 @@ public:
 
 	int rvflag;
 	/** ͬ������,�ٽ������� */
-	CRITICAL_SECTION   portPackCS;        //!< �������rvflag
+	CRITICAL_SECTION   portPackCSUdp;
+	CRITICAL_SECTION portPackCSPrint;//!< �������rvflag
 	int sendUdp(int sig);
 };

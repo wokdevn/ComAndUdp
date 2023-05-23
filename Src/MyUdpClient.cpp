@@ -209,6 +209,7 @@ int MyUdpClient::SendPack() {
 	{
 		printf("%02x ", (UCHAR)SendBuf[i]);
 	}
+	printf("|||||send:%s\n",SendBuf);
 	
 	return 0;
 }
