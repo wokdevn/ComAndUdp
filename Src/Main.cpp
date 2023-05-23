@@ -23,7 +23,7 @@ int main()
 
 	//CSerialPort mySerialPort;
 	PortPack m_PortPack;
-	if (!m_PortPack.OpenTwoRvThreads()) {
+	if (!m_PortPack.OpenThreeRvThreads()) {
 		std::cout << "Error when opening threads\n";
 	}
 	else {

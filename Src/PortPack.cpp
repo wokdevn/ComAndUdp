@@ -1,24 +1,40 @@
 #include "PortPack.h"
 
 bool PortPack::udpRevExit = false;
-bool PortPack::serialRevExit = false;
+bool PortPack::serialTxRevExit = false;
+bool PortPack::serialRxRevExit = false;
 
 PortPack::PortPack() {
 	udpRThread = INVALID_HANDLE_VALUE;
-	serialRThread = INVALID_HANDLE_VALUE;
+	serialTxRThread = INVALID_HANDLE_VALUE;
+	serialRxRThread = INVALID_HANDLE_VALUE;
 
-	if (!p_Serialport.InitPort(COM_PORT))
+	rvflag = 0;
+
+	if (!p_SerialportTx.InitPort(COM_PORT_TX))
 	{
-		std::cout << "initPort fail !!!!!!!!!!!!!!!\n\n" << std::endl;
+		std::cout << "initPort tx fail !!!!!!!!!!!!!!!\n\n" << std::endl;
 	}
 	else
 	{
-		std::cout << "initPort success !\n\n" << std::endl;
+		std::cout << "initPort tx success !\n\n" << std::endl;
 	}
+
+	if (!p_SerialportRx.InitPort(COM_PORT_RX))
+	{
+		std::cout << "initPort rx fail !!!!!!!!!!!!!!!\n\n" << std::endl;
+	}
+	else
+	{
+		std::cout << "initPort rx success !\n\n" << std::endl;
+	}
+
+	InitializeCriticalSection(&portPackCS);
 }
 
 PortPack::~PortPack() {
-	CloseTwoRvThreads();
+	CloseThreeRvThreads();
+	DeleteCriticalSection(&portPackCS);
 }
 
 bool PortPack::openUdpRvThread() {
@@ -50,25 +66,23 @@ UINT WINAPI PortPack::udpRevThreadFunc(void* pParam) {
 
 	while (!portPack->udpRevExit) {
 		char RevBuf[REVBUFFSIZE];
-		int l_nReadLen = recvfrom(portPack->p_UdpClient.NetSocket, 
+		int l_nReadLen = recvfrom(portPack->p_UdpClient.NetSocket,
 			RevBuf,
-			portPack->p_UdpClient.BufLen, 
+			portPack->p_UdpClient.BufLen,
 			0,
 			(struct sockaddr*)&(portPack->p_UdpClient.LoclAddr),
 			&(portPack->p_UdpClient.l_naddLen1));
 		if (l_nReadLen) {
 			printf("recved\n");
 
-			unsigned char data[100];
-			int length = strToHex((char*)TEST_NEW_COMMAND, data);
-			for (int i = 0; i < 1; ++i) {
-				//mUdpClient->csp->WriteData(data, length);
-				portPack->p_Serialport.WriteData(data, length);
-			}
-		}
+			unsigned char txdata[100];
+			unsigned char rxdata[100];
+			int txlength = strToHex((char*)TEST_TX_COMMAND, txdata);
+			int rxlength = strToHex((char*)TEST_RX_COMMAND, rxdata);
 
-		//test use
-		//portPack->p_UdpClient.SendPack();
+			portPack->p_SerialportTx.WriteData(txdata, txlength);
+			portPack->p_SerialportRx.WriteData(rxdata, rxlength);
+		}
 
 		printf("\nread:");
 		for (int i = 0; i < l_nReadLen; i++)
@@ -82,35 +96,53 @@ UINT WINAPI PortPack::udpRevThreadFunc(void* pParam) {
 	return 0;
 }
 
-bool PortPack::openSerialRvThread() {
-	if (serialRThread != INVALID_HANDLE_VALUE) {
-		std::cout << "SerialRev thread already open\n\n";
-		return false;
+bool PortPack::openTwoSerialRvThread() {
+	int rflag = true;
+	if (serialTxRThread != INVALID_HANDLE_VALUE) {
+		std::cout << "SerialRev tx thread already open\n\n";
+		rflag = false;
 	}
 
-	serialRevExit = false;
-
-	UINT s_threadId;
-
-	serialRThread = (HANDLE)_beginthreadex(NULL, 0, serialRevThreadFunc, this, 0, &s_threadId);
-
-	if (!serialRThread) {
-		return false;
+	if (serialRxRThread != INVALID_HANDLE_VALUE) {
+		std::cout << "SerialRev rx thread already open\n\n";
+		rflag = false;
 	}
 
-	if (!SetThreadPriority(serialRThread, THREAD_PRIORITY_ABOVE_NORMAL))
+	serialTxRevExit = false;
+	serialRxRevExit = false;
+
+	UINT s_threadIdtx;
+	UINT s_threadIdrx;
+
+	serialTxRThread = (HANDLE)_beginthreadex(NULL, 0, serialRevTxThreadFunc, this, 0, &s_threadIdtx);
+	serialRxRThread = (HANDLE)_beginthreadex(NULL, 0, serialRevRxThreadFunc, this, 0, &s_threadIdrx);
+
+	if (!serialTxRThread) {
+		rflag = false;
+	}
+
+	if (!serialRxRThread) {
+		rflag = false;
+	}
+
+	if (!SetThreadPriority(serialTxRThread, THREAD_PRIORITY_ABOVE_NORMAL))
 	{
-		return false;
+		rflag = false;
 	}
 
-	return true;
+	if (!SetThreadPriority(serialRxRThread, THREAD_PRIORITY_ABOVE_NORMAL))
+	{
+		rflag = false;
+	}
+
+	return rflag;
 }
 
-UINT WINAPI PortPack::serialRevThreadFunc(void* pParam) {
+UINT WINAPI PortPack::serialRevTxThreadFunc(void* pParam) {
 	PortPack* portPack = reinterpret_cast<PortPack*>(pParam);
 
-	while (!portPack->serialRevExit) {
-		UINT BytesInQue = portPack->p_Serialport.GetBytesInCOM();
+	while (!portPack->serialTxRevExit) {
+		UINT BytesInQue = portPack->p_SerialportTx.GetBytesInCOM();
 		/** 如果串口输入缓冲区中无数据,则休息一会再查询 */
 		if (BytesInQue == 0)
 		{
@@ -122,32 +154,77 @@ UINT WINAPI PortPack::serialRevThreadFunc(void* pParam) {
 		m.SendPack();*/
 		/*MyUdpClient* mm = new MyUdpClient();
 		mm->SendPack();*/
-		printf("serial reved \n");
-		portPack->p_UdpClient.SendPack();
+		printf("tx serial reved \n");
+
+		portPack->sendUdp(SERIAL_TX_SIG);
 
 		/** 读取输入缓冲区中的数据并输出显示 */
 		char cRecved = 0x00;
 		do
 		{
 			cRecved = 0x00;
-			if (portPack->p_Serialport.ReadChar(cRecved) == true)
+			if (portPack->p_SerialportTx.ReadChar(cRecved) == true)
 			{
 				printf("%02x", ((unsigned int)cRecved & 0xff));
 				continue;
 			}
 		} while (--BytesInQue);
-		printf("||||end>>>>>>>>\n");
+		printf("||||end tttx>>>>>>>>\n");
 	}
 
 	return 0;
 }
 
-bool PortPack::CloseTwoRvThreads() {
-	if (serialRThread != INVALID_HANDLE_VALUE)
+UINT WINAPI PortPack::serialRevRxThreadFunc(void* pParam) {
+	PortPack* portPack = reinterpret_cast<PortPack*>(pParam);
+
+	while (!portPack->serialRxRevExit) {
+		UINT BytesInQue = portPack->p_SerialportRx.GetBytesInCOM();
+		/** 如果串口输入缓冲区中无数据,则休息一会再查询 */
+		if (BytesInQue == 0)
+		{
+			Sleep(SLEEP_TIME_SERIAL);
+			continue;
+		}
+
+		/*MyUdpClient m;
+		m.SendPack();*/
+		/*MyUdpClient* mm = new MyUdpClient();
+		mm->SendPack();*/
+		printf("rx serial recved \n");
+
+		portPack->sendUdp(SERIAL_RX_SIG);
+
+		/** 读取输入缓冲区中的数据并输出显示 */
+		char cRecved = 0x00;
+		do
+		{
+			cRecved = 0x00;
+			if (portPack->p_SerialportTx.ReadChar(cRecved) == true)
+			{
+				printf("%02x", ((unsigned int)cRecved & 0xff));
+				continue;
+			}
+		} while (--BytesInQue);
+		printf("||||end RRRx>>>>>>>>\n");
+	}
+
+	return 0;
+}
+
+bool PortPack::CloseThreeRvThreads() {
+	if (serialTxRThread != INVALID_HANDLE_VALUE)
 	{
 		/** 通知线程退出 */
-		serialRevExit = true;
+		serialTxRevExit = true;
 	}
+
+	if (serialRxRThread != INVALID_HANDLE_VALUE)
+	{
+		/** 通知线程退出 */
+		serialRxRevExit = true;
+	}
+
 	if (udpRThread != INVALID_HANDLE_VALUE) {
 		udpRevExit = true;
 	}
@@ -156,8 +233,11 @@ bool PortPack::CloseTwoRvThreads() {
 	Sleep(10);
 
 	/** 置线程句柄无效 */
-	CloseHandle(serialRThread);
-	serialRThread = INVALID_HANDLE_VALUE;
+	CloseHandle(serialTxRThread);
+	serialTxRThread = INVALID_HANDLE_VALUE;
+
+	CloseHandle(serialRxRThread);
+	serialRxRThread = INVALID_HANDLE_VALUE;
 
 	CloseHandle(udpRThread);
 	udpRThread = INVALID_HANDLE_VALUE;
@@ -165,7 +245,7 @@ bool PortPack::CloseTwoRvThreads() {
 	return true;
 }
 
-bool PortPack::OpenTwoRvThreads() {
+bool PortPack::OpenThreeRvThreads() {
 	bool flag = true;
 	if (openUdpRvThread()) {
 		printf("udp listening\n");
@@ -175,8 +255,8 @@ bool PortPack::OpenTwoRvThreads() {
 		flag = false;
 	}
 
-	if (openSerialRvThread()) {
-		printf("serial listening\n");
+	if (openTwoSerialRvThread()) {
+		printf("serials listening\n");
 	}
 	else {
 		printf("serial thread open failed\n");
@@ -184,4 +264,16 @@ bool PortPack::OpenTwoRvThreads() {
 	}
 
 	return flag;
+}
+
+int PortPack::sendUdp(int sig) {
+	EnterCriticalSection(&portPackCS);
+
+	rvflag += sig;
+	if (!rvflag) {
+		p_UdpClient.SendPack();
+	}
+	LeaveCriticalSection(&portPackCS);
+
+	return 0;
 }
