@@ -154,9 +154,13 @@ UINT WINAPI PortPack::serialRevTxThreadFunc(void* pParam) {
 		m.SendPack();*/
 		/*MyUdpClient* mm = new MyUdpClient();
 		mm->SendPack();*/
-		printf("tx serial reved \n");
+		
 
 		portPack->sendUdp(SERIAL_TX_SIG);
+
+		EnterCriticalSection(&(portPack->portPackCS));
+		printf("Tx serial recved>>>>>>>>>>>>> \n");
+		
 
 		/** 读取输入缓冲区中的数据并输出显示 */
 		char cRecved = 0x00;
@@ -170,6 +174,7 @@ UINT WINAPI PortPack::serialRevTxThreadFunc(void* pParam) {
 			}
 		} while (--BytesInQue);
 		printf("||||end tttx>>>>>>>>\n");
+		LeaveCriticalSection(&(portPack->portPackCS));
 	}
 
 	return 0;
@@ -191,22 +196,26 @@ UINT WINAPI PortPack::serialRevRxThreadFunc(void* pParam) {
 		m.SendPack();*/
 		/*MyUdpClient* mm = new MyUdpClient();
 		mm->SendPack();*/
-		printf("rx serial recved \n");
-
+		
 		portPack->sendUdp(SERIAL_RX_SIG);
 
+		EnterCriticalSection(&(portPack->portPackCS));
+		printf("rx serial recved>>>>>>>>>>>>> \n");
 		/** 读取输入缓冲区中的数据并输出显示 */
 		char cRecved = 0x00;
 		do
 		{
 			cRecved = 0x00;
-			if (portPack->p_SerialportTx.ReadChar(cRecved) == true)
+			if (portPack->p_SerialportRx.ReadChar(cRecved) == true)
 			{
 				printf("%02x", ((unsigned int)cRecved & 0xff));
 				continue;
 			}
 		} while (--BytesInQue);
 		printf("||||end RRRx>>>>>>>>\n");
+		LeaveCriticalSection(&(portPack->portPackCS));
+
+		
 	}
 
 	return 0;
